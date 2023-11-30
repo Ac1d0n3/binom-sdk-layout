@@ -1,0 +1,70 @@
+div [class*="bnl-el-"]{
+    position: relative;
+    box-sizing: border-box;
+}
+
+.bn-layout-app-container{
+    position: relative;
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10;
+    overflow:auto
+}
+
+.bnl-wrapper{ height:100%; }
+
+.bnl-no-grid{
+    display: block;
+    position: relative;
+}
+
+.bnl-grid-desktop, .bnl-grid-tablet, .bnl-grid-phone{
+    display: grid;
+    display: -ms-grid;
+    grid-gap: 0;
+    transition: 600ms;
+    position: relative;
+}
+
+.bnl-transparent-header-on .mat-toolbar,.bnl-transparent-header-on {
+    background: none !important;
+    overscroll-behavior: none;
+    -webkit-transition: background .8s ease-out;
+       -moz-transition: background .8s ease-out;
+         -o-transition: background .8s ease-out;
+            transition: background .8s ease-out;
+}
+
+.bnl-transparent-header-off .mat-toolbar, .bn-colorchange,.bnl-transparent-header-off  {
+    -webkit-transition: background .8s ease-in;
+    -moz-transition: background .8s ease-in;
+      -o-transition: background .8s ease-in;
+         transition: background .8s ease-in;
+}
+
+.bnl-transparent-header-on .mat-toolbar,.bnl-transparent-header-off .mat-toolbar, .bn-transparent{
+    background: none !important;
+}
+
+.mat-mdc-toolbar, .mat-toolbar{
+    padding: 0 10px !important;
+}
+
+
+.bnl-el-preheader {          grid-area: preheader; overflow: auto;}
+.bnl-el-header:not(.fixed) { grid-area: header; overflow: auto;}
+.bnl-el-precontent {         grid-area: precontent;overflow: auto; }
+.bnl-el-content {            grid-area: content;  }
+.bnl-el-footer {             grid-area: footer; overflow: auto; }
+.bnl-el-sidebarleft {        grid-area: sidebarleft; overflow: auto; }
+.bnl-el-sidebarright {       grid-area: sidebarright; overflow: auto;  }
+
+.fixed 
+{
+    position: fixed !important;
+    top:0px;
+    z-index: 200;
+    grid-area: unset !important;
+}
+

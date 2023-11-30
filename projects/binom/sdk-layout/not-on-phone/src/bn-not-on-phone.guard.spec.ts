@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { CanActivateFn } from '@angular/router';
 
-import { bnLayoutNotOnPhoneGuard } from './bn-layout-not-on-phone.guard';
+import { bnNotOnPhoneGuard } from './bn-not-on-phone.guard';
 
-describe('bnLayoutNotOnPhoneGuard', () => {
+describe('bnNotOnPhoneGuard', () => {
   const executeGuard: CanActivateFn = (...guardParameters) => 
-      TestBed.runInInjectionContext(() => bnLayoutNotOnPhoneGuard(...guardParameters));
+      TestBed.runInInjectionContext(() => bnNotOnPhoneGuard(...guardParameters));
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
