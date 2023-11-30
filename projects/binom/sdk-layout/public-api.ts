@@ -1,0 +1,1 @@
+export const BINOM_SDK_ANIMATION = "@binom/sdk-animation";
