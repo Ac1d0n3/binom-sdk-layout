@@ -1,1 +1,1 @@
-export const BINOM_SDK_ANIMATION = "@binom/sdk-animation";
+export const BINOM_SDK_LAYOUT = "@binom/sdk-layout";

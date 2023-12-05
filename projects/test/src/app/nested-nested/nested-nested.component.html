@@ -1,0 +1,31 @@
+<section bnLayoutWrapper>
+
+
+    <section bnLayoutHeader height="64">
+        <mat-toolbar> SUBSUB
+        <button mat-button (click)="preheader = !preheader"> PreHeader</button>
+        
+    
+        <button mat-button (click)="sidebarleft = !sidebarleft"> sidebarleft</button>
+
+        </mat-toolbar>
+    </section>
+
+    <section bnLayoutSidebar cdkScrollable  [visible]="sidebarleft" >
+        
+        <div class="sample-side">
+        SUBSUBSIDEBAR
+        </div>
+
+    </section>
+
+    <section bnLayoutContent cdkScrollable >
+
+        SUBSUBCONTENT
+
+    </section>
+
+    
+
+
+ </section>

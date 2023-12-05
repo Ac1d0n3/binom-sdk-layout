@@ -1,47 +1,53 @@
-<mat-toolbar>
-  <button type="button" class="bn-button-fa"  mat-icon-button (click)="drawer.toggle()">
-    <i class="fas fa-bars"></i>
-  </button>
 
-  <img style="height:40px"  src="../assets/sdk-core/binom.svg" />
+<section bnLayoutAppWrapper cdkScrollable >
 
-    <span style="margin-left: 10px;"></span> 
-    <span class="toolbar-spacer"></span> 
-    <bn-translate-switch-menu></bn-translate-switch-menu>
+  <section bnLayoutWrapper="root" maxWidth="1400" centeredX [calcHeights]="false" [grid]="true" noInheritGrid>
 
-    <span style="font-size: 10px;font-weight: 100;"><i class="fas fa-at"></i>binom/sdk-animation 1.0.0 </span>
+    <section bnLayoutPreHeader [visible]="preheader" cdkScrollable >
+      <h1>PREHEADER</h1>
+      <div style="height:200px">...</div>
+    </section>
 
-</mat-toolbar>
+    <section bnLayoutHeader height="64" shadow sticky animated fullWidth >
+      <mat-toolbar>
+        <span bnAos="fadeIn">
+        <button mat-button (click)="preheader = !preheader"> PreHeader</button>
+        <button mat-button (click)="precontent = !precontent"> PreContent</button>
+        <button mat-button (click)="sidebarleft = !sidebarleft"> sidebarleft</button>
+        <button mat-button (click)="sidebarright = !sidebarright"> sidebarright</button>
+        <button mat-button (click)="footer = !footer"> footer</button>
+        <button mat-button [routerLink]="['./home']"> home</button>
+        <button mat-button [routerLink]="['./nested']"> nested</button>
+      </span>
+      </mat-toolbar>
+    </section>
 
+    <section bnLayoutSidebar cdkScrollable  [visible]="sidebarleft" class="sample-side" width="300">
+      
+      <div >
+        SIDEBAR
+      </div>
 
-<mat-drawer-container class="example-container" autosize >
-  <mat-drawer #drawer class="example-sidenav" mode="side" [opened]="true" >
-    <button type="button"  mat-button style="width:100%;justify-content: flex-start;" [routerLink]="['./home']"> <i class="fas fa-home bn-fa"></i> Home</button>
+    </section>
+
     
-    <mat-accordion>
 
-      @for (item of data; track $index) {
-        <mat-expansion-panel>
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-             {{item.title}}
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-          <div style="display: grid;grid-template-columns: auto;">
-            @for (subitem of item.data; track $index) {
-            <button style="justify-content: flex-start;"  type="button" mat-button [routerLink]="['./'+item.title+'/'+subitem]">
-              {{subitem}}
-            </button>
-            }
-          </div>
-        </mat-expansion-panel>
-      }
-     
-    </mat-accordion>
-  </mat-drawer>
+    <section bnLayoutContent cdkScrollable >
 
-  <div class="example-sidenav-content" cdkScrollable>
-    <router-outlet></router-outlet>
-  </div>
+      <router-outlet #outlet="outlet"></router-outlet>
 
-</mat-drawer-container>
+    </section>
+
+    <section bnLayoutSidebar="right" [visible]="sidebarright" cdkScrollable class="sample-side">
+      <div >
+        SIDEBAR
+      </div>
+    </section>
+
+    <section bnLayoutFooter fullWidth [visible]="footer" style="background-color:olive">
+      FOOTER
+    </section>
+
+  </section>
+
+</section>

@@ -1,15 +1,13 @@
-section{
-    display: grid;
-    grid-template-columns: auto auto auto auto;
-    grid-row: auto;
+.dummy{
+    display:grid;grid-template-columns: auto auto auto auto auto;
+    grid-template-rows:auto;
 }
 
-section div {
-    background-color: orange;
-    margin: 5px;
-    padding: 10px;
+.dummy div {
+    width: 200px;
+    height: 200px;
     text-align: center;
-    width: fit-content;
-    height: 190px;
-    box-sizing: border-box;
+    padding: 10px;
+    background-color: olive;
+    margin: 10px;
 }

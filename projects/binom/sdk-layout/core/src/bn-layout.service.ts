@@ -1,7 +1,7 @@
-import { Injectable, NgZone} from '@angular/core';
+import { Injectable, NgZone, inject} from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ViewportRuler } from '@angular/cdk/overlay';
-import { BnLoggerService, BnLogSource } from "@binom/sdk-core/logger";
+import { BnLoggerService, BnLogMsg, BnLogSource } from "@binom/sdk-core/logger";
 import { BnLayoutInfo } from './bn-layout-info';
 import { BnLayoutEvent } from './bn-layout-event';
 import { BnLayoutScroll } from './bn-layout-scroll';
@@ -12,17 +12,22 @@ import { BnLayoutScroll } from './bn-layout-scroll';
 })
 export class BnLayoutService {
 
-  logSource:BnLogSource = {
-    module: 'bnLayout',
-    source: 'BnLayoutInfoService'
+  private logger = inject(BnLoggerService);
+  private logSource:BnLogSource = { module: 'bnLayout', source: 'BnLayoutGridService' };
+  private __logMsg(type:any, msg:BnLogMsg){
+    if(this.logger.doLog(this.logSource,type)){
+      let formatMsg:any = this.logger.formatMsg(msg,this.logSource,type)
+      console.log(formatMsg.msg,formatMsg.color);
+    }
   }
 
+  //-------------------------------------------------------------------------------------------
+  //  
+
   constructor(
-    private logger: BnLoggerService, 
     private viewPort: ViewportRuler,
     private readonly ngZone: NgZone
   ) { 
-   
     this.setLayoutInfo();
   }
 
@@ -48,7 +53,10 @@ export class BnLayoutService {
         breakpoint: this.getBreakPoints()
       }
     }
-    if(updateEvent) this.updateLayoutEvent('layoutInfoService', 'resize');
+    if(updateEvent) {
+      this.updateLayoutEvent('layoutInfoService', 'resize');
+    }
+    this.__logMsg('debug', {function:'setLayoutInfo', msg: 'resized', info:  this.layoutInfo })
     this.layoutInfo$.next(this.layoutInfo);
   }
 
@@ -65,6 +73,7 @@ export class BnLayoutService {
   }
 
   private updateLayoutEvent(calledBy:string, source:string):void {
+    this.__logMsg('debug', {function:'updateLayoutEvent', msg: calledBy + ' ' + source, info:  this.layoutInfo })
     this.eventCount++;
     this.layoutEvent$.next({ count: this.eventCount, lastCalledBy:calledBy, source: source })
   }

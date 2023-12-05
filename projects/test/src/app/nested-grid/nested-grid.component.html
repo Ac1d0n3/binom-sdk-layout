@@ -1,0 +1,52 @@
+
+
+<section bnLayoutWrapper>
+
+    <section bnLayoutPreHeader [visible]="preheader" cdkScrollable >
+        <h1>SUBPREHEADER</h1>
+        <div style="height:200px"></div>
+    </section>
+
+    <section bnLayoutHeader height="64">
+        <mat-toolbar> SUB
+        <button mat-button (click)="preheader = !preheader"> PreHeader</button>
+        
+        <button mat-button (click)="precontent = !precontent"> PreContent</button>
+        <button mat-button (click)="sidebarleft = !sidebarleft"> sidebarleft</button>
+        <button mat-button (click)="sidebarright = !sidebarright"> sidebarright</button>
+        <button mat-button (click)="footer = !footer"> footer</button>
+        </mat-toolbar>
+    </section>
+
+    <section bnLayoutSidebar cdkScrollable  [visible]="sidebarleft" class="sample-side">
+        
+        <div >
+        SUBSIDEBAR
+        </div>
+
+    </section>
+
+    <section bnLayoutContent cdkScrollable >
+
+       
+        <app-nested-nested></app-nested-nested>
+
+    </section>
+
+    <section  bnLayoutSidebar="right" [visible]="sidebarright" cdkScrollable class="sample-side">
+        <div >
+        SUBSIDEBAR
+        </div>
+    </section>
+
+    <section bnLayoutFooter [visible]="footer">
+        SUBFOOTER
+    </section>
+
+ </section>
+
+   
+
+  
+
+

@@ -1,11 +1,40 @@
-import { Directive } from '@angular/core';
+import { Directive, Input } from '@angular/core';
+import { BnLayoutElementBaseDirective } from '../shared/bn-layout-element-base.directive';
+import { BnLogSource } from '@binom/sdk-core/logger';
+import { BooleanInput, NumberInput, coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 
 @Directive({
-  selector: '[libBnLayoutFooter]',
+  selector: '[bnLayoutFooter]',
   standalone: true
 })
-export class BnLayoutFooterDirective {
+export class BnLayoutFooterDirective extends BnLayoutElementBaseDirective {
 
-  constructor() { }
+  override elTag: string = 'footer';
+  override logSource: BnLogSource = { module: 'bnLayout', source: 'FooterDirective' }
 
+  private _fullWidth: boolean = false;
+  get fullWidth(): boolean { return this._fullWidth;}
+  @Input() set fullWidth(val: BooleanInput) { this._fullWidth = coerceBooleanProperty(val); }
+
+  private _useMaxWitdhForContent: boolean = false;
+  get useMaxWitdhForContent(): boolean { return this._useMaxWitdhForContent;}
+  @Input() set useMaxWitdhForContent(val: BooleanInput) { this._useMaxWitdhForContent = coerceBooleanProperty(val); }
+
+  private _height:number = 200;
+  get height():number{ return this._height; }
+  @Input() set height(val:NumberInput){ this._height= coerceNumberProperty(val); }
+
+  ngOnInit():void{
+    this.onInit();
+    this.__initFooter();
+  }
+
+
+  private __initFooter(){
+    if(!this.current) return;
+    this.configSvc.setElementHeight(this.current, this.elTag, this.height);
+    this.renderUtil.setHeight(this.height);
+    this.configSvc.setFooterDefaults(this.current, this.fullWidth, this.useMaxWitdhForContent);
+  }
+  
 }

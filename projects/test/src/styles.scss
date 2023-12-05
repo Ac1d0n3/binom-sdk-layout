@@ -1,6 +1,8 @@
 @import '../../../node_modules/@binom/sdk-core/styles/core.scss';
 @import '../../../node_modules/@binom/sdk-core/styles/material-icons.scss';
 
+@import '../../../dist/binom/sdk-layout/styles/layout.scss';
+
 .regular-border,.picklist-item{
     border-color: dimgray !important;
   }
@@ -8,3 +10,4 @@
   .profile-default-image{
     fill:#46a35e !important
   }
+

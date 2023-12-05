@@ -9,7 +9,8 @@ div [class*="bnl-el-"]{
     width: 100vw;
     height: 100vh;
     z-index: 10;
-    overflow:auto
+    overflow:auto;
+    box-sizing: border-box;
 }
 
 .bnl-wrapper{ height:100%; }
@@ -18,14 +19,15 @@ div [class*="bnl-el-"]{
     display: block;
     position: relative;
 }
-
 .bnl-grid-desktop, .bnl-grid-tablet, .bnl-grid-phone{
     display: grid;
     display: -ms-grid;
     grid-gap: 0;
     transition: 600ms;
     position: relative;
+    height: auto;
 }
+
 
 .bnl-transparent-header-on .mat-toolbar,.bnl-transparent-header-on {
     background: none !important;
@@ -55,7 +57,7 @@ div [class*="bnl-el-"]{
 .bnl-el-preheader {          grid-area: preheader; overflow: auto;}
 .bnl-el-header:not(.fixed) { grid-area: header; overflow: auto;}
 .bnl-el-precontent {         grid-area: precontent;overflow: auto; }
-.bnl-el-content {            grid-area: content;  }
+.bnl-el-content {            grid-area: content;  overflow-y: auto; }
 .bnl-el-footer {             grid-area: footer; overflow: auto; }
 .bnl-el-sidebarleft {        grid-area: sidebarleft; overflow: auto; }
 .bnl-el-sidebarright {       grid-area: sidebarright; overflow: auto;  }

@@ -65,6 +65,11 @@
                 "glob": "**/*",
                 "input": "./node_modules/@binom/sdk-core/assets",
                 "output": "assets"
+              },
+              {
+                "glob": "**/*",
+                "input": "dist/binom/sdk-layout/assets",
+                "output": "assets"
               }
             ],
             "styles": [

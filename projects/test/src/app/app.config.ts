@@ -6,6 +6,9 @@ import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { importProvidersFrom } from '@angular/core';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { BnLayoutService } from '@binom/sdk-layout/core';
+import { BnLayoutGridService } from '@binom/sdk-layout/css-grid';
+import { BnLoggerService } from '@binom/sdk-core/logger';
 
 export function createTranslateLoader(http: HttpClient): TranslateHttpLoader {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -20,7 +23,7 @@ export const appConfig: ApplicationConfig = {
             useFactory: createTranslateLoader,
             deps: [HttpClient],
         },
-    })), provideAnimations()]
+    })), provideAnimations(), BnLayoutService, BnLayoutGridService, BnLoggerService]
 };
 
 
