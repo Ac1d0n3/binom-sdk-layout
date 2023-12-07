@@ -79,13 +79,11 @@ export class BnLayoutWrapperDirective {
 
    //------------------------------------------------------------------------------------------
   // Center Settings
-  private _centeredX: boolean = false;
-  get centeredX(): boolean { return this._centeredX; }
-  @Input() set centeredX(val: BooleanInput) { this._centeredX = coerceBooleanProperty(val); }
+  private _centered: boolean = false;
+  get centeredX(): boolean { return this._centered; }
+  @Input() set centered(val: BooleanInput) { this._centered = coerceBooleanProperty(val); }
 
-  private _centeredY: boolean = false;
-  get centeredY(): boolean { return this._centeredY; }
-  @Input() set centeredY(val: BooleanInput) { this._centeredY = coerceBooleanProperty(val); }
+
 
   //------------------------------------------------------------------------------------------
   // Grid Settings
@@ -122,6 +120,9 @@ export class BnLayoutWrapperDirective {
   get wrapperOffset():number{ return this._wrapperOffset; }
   @Input() set wrapperOffset(val:NumberInput){ this._wrapperOffset= coerceNumberProperty(val); }
 
+  private _animated:boolean = false; get animated():boolean{ return this._animated; }
+  @Input() set animated(val:BooleanInput){ this._animated= coerceBooleanProperty(val); }
+
   //------------------------------------------------------------------------------------------
   //  
   ngOnInit(): void {
@@ -152,11 +153,14 @@ export class BnLayoutWrapperDirective {
       if(usedRandom) {
         this.current.isRandom = true
       }
-      this.__logMsg('debug',{ function:'ngOnInit - #wrapper', msg: this.wrapperId + ' called', info: this.current} );
+     
+
       this.renderUtil.addElementIdClasses('bnl-wrapper', this.wrapperId);
-      this.configSvc.setWrapperDefaults( this.current, this.grid, this.noInheritGrid, this.calcHeights, this.noInheritCalcHeights, this.noFullScreen, this.centeredX, this._centeredY, this.offsetTop, this.offsetBottom);
+      this.configSvc.setWrapperDefaults( this.current, this.grid, this.animated, this.noInheritGrid, this.calcHeights, this.noInheritCalcHeights, this.noFullScreen, this._centered, this.offsetTop, this.offsetBottom);
       this.__updateWrapperWidths();
       this.__initLayoutEventListener();
+
+      this.__logMsg('debug',{ function:'ngOnInit - #wrapper', msg: this.wrapperId + ' called', info: this.current} );
     }
   
   }
@@ -197,9 +201,10 @@ export class BnLayoutWrapperDirective {
 
   private __handleEvent(data: BnGridWrapperEvent) {
     this.fullScreenEvent = false;
+    //console.log(data)
     if(!this.current) return;
     if(data.wrapper){
-      this.updateView();
+     
       this.__logMsg('debug', { function:'Wrapper Event for: ' +this.wrapperId, msg: 'source: ' +data.source + ' action: '+ data.action  } );
       if(JSON.stringify(data) !== JSON.stringify(this.lastevent)){
         this.lastevent = data;
@@ -207,7 +212,7 @@ export class BnLayoutWrapperDirective {
           this.fullScreenEvent = true;
         }
       }
-      if((data.wrapper === 'all' && data.parent === 'all') || (data.action === 'visible' && data.wrapper !== this.wrapperId && this.current.parentId !=='' )){
+      if((data.wrapper === 'all' && data.parent === 'all') || (data.action === 'visible'  )){
         this.gridSvc.wrapperChildEvent(this.wrapperId, this.parentId, data.level, data.source, data.action, data.state, data.outsideEvent);
       } 
       if(data.source === 'appwrapper' && data.action === 'updatesettings'){
@@ -215,6 +220,7 @@ export class BnLayoutWrapperDirective {
         this.fullScreenEvent = false;
       }
     }
+    this.updateView();
   
   }
 
@@ -239,11 +245,9 @@ export class BnLayoutWrapperDirective {
   // Renderer Helper Classes
 
   private __toggleGridView(){
-   if(this.current && this.isInit){
-    console.log('------------->',this.gridSvc.checkGrid(this.current))
-    this.gridSvc.checkGrid(this.current) ? this.__gridView(this.gridSvc.getGridSettings(this.current)):this.__blockView();
-   }
-  
+    if(this.current && this.isInit){
+      this.gridSvc.checkGrid(this.current) ? this.__gridView(this.gridSvc.getGridSettings(this.current)):this.__blockView();
+    }
   }
 
   private __gridView(gridSettings: BnGridCss) {
@@ -287,7 +291,7 @@ export class BnLayoutWrapperDirective {
   private animateGridColumns(fromColumns: string, toColumns: string) {
     const metadata = [
       style({ gridTemplateColumns: fromColumns }),
-      animate('400ms ease-in-out', style({ gridTemplateColumns: toColumns }))
+      animate('300ms ease-in-out', style({ gridTemplateColumns: toColumns }))
     ];
     const factory: AnimationFactory = this.animBuilder.build(metadata);
     const player: AnimationPlayer = factory.create(this.el.nativeElement);

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterModule, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar'
@@ -11,18 +11,21 @@ import { CdkScrollableModule } from '@angular/cdk/scrolling';
 import { BnAnimateOnScrollComponent, BnAosViewPortDirective } from '@binom/sdk-animation/aos';
 import { BnLayoutAppWrapperDirective } from '../../../binom/sdk-layout/css-grid';
 import { BnCssGridModule } from '@binom/sdk-layout/css-grid';
+import { BnLoggerService } from '@binom/sdk-core/logger';
+import { BnLayoutSwitchMenuComponent } from '@binom/sdk-layout/layout-switch';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
     CommonModule, RouterOutlet, RouterModule, MatToolbarModule, BnAnimateOnScrollComponent,BnAosViewPortDirective,
-    BnTranslateSwitchMenuComponent, TranslateModule, MatSidenavModule, MatButtonModule, MatExpansionModule, 
+    BnTranslateSwitchMenuComponent, TranslateModule, MatSidenavModule, MatButtonModule, MatExpansionModule, BnLayoutSwitchMenuComponent,
     CdkScrollableModule, BnCssGridModule
   ],
   templateUrl: './app.component.html',
 
-  styleUrl: './app.component.scss'
+  styleUrl: './app.component.scss',
+
 })
 export class AppComponent {
   title = 'test';
@@ -33,7 +36,14 @@ export class AppComponent {
     this.data.forEach((item:any) => {
       item.data.sort();
     });
+    this.logger.logLevel = -1;
+
   }
+
+
+  private logger = inject(BnLoggerService)
+
+  
 
   data = [
 
@@ -49,8 +59,8 @@ export class AppComponent {
   ]
 
   preheader:boolean = true;
-  sidebarleft:boolean = true;
-  sidebarright:boolean = true;
+  sidebarleft:boolean = false;
+  sidebarright:boolean = false;
   precontent:boolean = true;
   footer:boolean = true;
 

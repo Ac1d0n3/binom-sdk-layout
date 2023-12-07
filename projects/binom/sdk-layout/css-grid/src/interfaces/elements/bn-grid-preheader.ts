@@ -1,7 +1,6 @@
 export interface BnGridPreheader {
     fullWidth:boolean;
-    useMaxWitdhForContent:boolean;
+    fullWidthContent: 'always' | 'none' | 'fullscreen'
     fullHeight:boolean;
-    fullAs: 'window' | 'content';
     height:number;
 }

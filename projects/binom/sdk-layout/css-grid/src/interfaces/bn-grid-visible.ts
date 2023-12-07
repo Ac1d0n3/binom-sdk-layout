@@ -3,8 +3,3 @@ export interface BnGridVisible {
     def: BnGridElements;
     active: BnGridElements;
 }
-
-
-export interface BnGridVisible {
-
-}

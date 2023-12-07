@@ -12,6 +12,9 @@ import { BnGridCss } from './interfaces/bn-grid-css';
 import { BnGridWrapperConfig } from './interfaces/bn-grid-wrapper-config';
 import { BnGridSidebars } from './interfaces/elements/bn-grid-sidebars';
 import { coerceNumberProperty } from '@angular/cdk/coercion';
+import { AnimationMetadata, AnimationMetadataType, animate, style } from '@angular/animations';
+import { BnGridAnimateObject } from './interfaces/bn-grid-animate-object';
+import { BnWrapperCurVals } from './interfaces/bn-wrapper-cur-vals';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +32,7 @@ export class BnLayoutGridService {
   private prevEvent!:BnGridWrapperEvent;
   public wrapperEvent$:BehaviorSubject<BnGridWrapperEvent> = new BehaviorSubject({} as any);
   public wrapperChildEvent$:BehaviorSubject<BnGridWrapperEvent> = new BehaviorSubject({} as any);
-  private gridInfo: BnGridInfo = { fullscreen: false, grid: false, calcHeights: false, alwaysGrid: false, alwaysCalcHeights: false, hierarchy: [] };
+  public gridInfo: BnGridInfo = { fullscreen: false, grid: true, calcHeights: false, alwaysGrid: false, alwaysCalcHeights: false, hierarchy: [] };
 
   //-------------------------------------------------------------------------------------------
   //  Grid Wrapper Events
@@ -196,6 +199,7 @@ export class BnLayoutGridService {
     let gridRows = '';
     if(gridWrapper.config.offsetTop !== 0 && !this.layoutSvc.isPhone()){ gridRows = this.__createStr(gridRows, gridWrapper.config.offsetTop, true); }
     if(this.isVisble(gridWrapper,'preheader')){ gridRows = this.__createStr(gridRows, gridWrapper.heights.preheader, true); }
+   // else { gridRows += ' 0px ' }
     if(this.isVisble(gridWrapper,'header')){ gridRows = this.__createStr(gridRows, gridWrapper.heights.header, true); }
     if(this.isVisble(gridWrapper,'precontent')){ gridRows = this.__createStr(gridRows, gridWrapper.heights.precontent, true); }
     if(this.isVisble(gridWrapper,'content')){ gridRows = this.__createStr(gridRows, gridWrapper.heights.content, false); }
@@ -204,16 +208,21 @@ export class BnLayoutGridService {
     return gridRows;
   }
 
+
   private __genGridColumns(gridWrapper: BnGridWrapper):string{
-    let gridColumns = '';
-    let add = '5vw';
-    if(this.gridInfo.fullscreen && ! gridWrapper.config.noFullScreen  || this.layoutSvc.isPhone() || window.innerWidth < gridWrapper.config.maxWidth ) {
+    let gridColumns = ''; let addNum = 0; let add = '0px'; 
+    let useWidth = this.useWidth(gridWrapper);
+    if(this.gridInfo.fullscreen && ! gridWrapper.config.noFullScreen  || this.layoutSvc.isPhone() || window.innerWidth < useWidth) {
       add = '0px';
     } else {
-      if(gridWrapper.config.maxWidth === 0) gridWrapper.config.maxWidth = this.getParentWrapperMaxWidth(gridWrapper.wrapperId);
-      if(this.layoutSvc.layoutInfo.window.width > gridWrapper.config.maxWidth) add = (this.layoutSvc.layoutInfo.window.width - gridWrapper.config.maxWidth) / 2 + 'px'
+      if(this.layoutSvc.layoutInfo.window.width > useWidth) {
+        addNum = (this.layoutSvc.layoutInfo.window.width - useWidth) 
+        if(gridWrapper.config.centered) add = addNum / 2 + 'px';
+        else if(useWidth > 0 ) add = addNum + 'px'
+      }
     }
-    if(gridWrapper.config.centerX ) gridColumns =   add + ' auto 1fr auto ' + add;
+    if(gridWrapper.config.centered){ gridColumns =   add + ' auto 1fr auto ' + add; }
+    else if(useWidth > 0 ) { gridColumns =  '0px auto 1fr auto ' + add; }
     else gridColumns =  'auto 1fr auto' 
     return gridColumns;
   }
@@ -222,9 +231,12 @@ export class BnLayoutGridService {
     let gridAreas = '';
     let left = this.isVisble(gridWrapper,'sidebarleft');
     let right = this.isVisble(gridWrapper,'sidebarright');
-    let add = gridWrapper.config.centerX;
-    if(gridWrapper.elConfig.sidebars.left.animated){ left = true; }
-    if(gridWrapper.elConfig.sidebars.right.animated){ right = true; }
+    let useWidth = this.useWidth(gridWrapper);
+    
+    let add = gridWrapper.config.centered || !gridWrapper.config.centered && useWidth !== 0;
+  
+    //if(gridWrapper.config.animated){ left = true; }
+    //if(gridWrapper.config.animated){ right = true; }
     if(gridWrapper.config.offsetTop !== 0 && !this.layoutSvc.isPhone()){
       let random = this.randomId();
       if(gridWrapper.elConfig.footer.fullWidth){
@@ -234,12 +246,14 @@ export class BnLayoutGridService {
       }
     }
     if(this.isVisble(gridWrapper,'preheader')){
-      if(gridWrapper.elConfig.footer.fullWidth){ gridAreas += this.__genGridAreaRow(['preheader', 'preheader','preheader','preheader','preheader'], false); } 
+      if(gridWrapper.elConfig.preheader.fullWidth ){ gridAreas += this.__genGridAreaRow(['preheader', 'preheader','preheader','preheader','preheader'], false); } 
       else { gridAreas += this.__genGridAreaRow(['preheader', 'preheader','preheader'], add); }
+    } else {
+      gridAreas += this.__genGridAreaRow(['preheader', 'preheader','preheader'], add);
     }
 
     if(this.isVisble(gridWrapper,'header')){
-      if(gridWrapper.elConfig.header.fullWidth && add){
+      if(gridWrapper.elConfig.header.fullWidth ){
         gridAreas += this.__genGridAreaRow(['header', 'header','header','header','header'], false); 
       } else {
         gridAreas += this.__genGridAreaSidebarRow('header', 
@@ -320,6 +334,13 @@ export class BnLayoutGridService {
     return width
   }
 
+  useWidth(gridWrapper: BnGridWrapper){
+    let useWidth = 0;
+    if(gridWrapper.config.maxWidth === 0) useWidth = this.getParentWrapperMaxWidth(gridWrapper.wrapperId);
+    if(gridWrapper.config.maxWidth === 0) useWidth = this.witdhInNumber(gridWrapper.config.width,this.layoutSvc.layoutInfo.window.width);
+    else useWidth = gridWrapper.config.maxWidth;
+    return useWidth;
+  }
 
   getFixedParentWidth(gridWrapper: BnGridWrapper):number{
     let vals = this.getParentWrapperSettings(gridWrapper.wrapperId);
@@ -360,6 +381,18 @@ export class BnLayoutGridService {
     return total
   }
 
+  public getElementOffset(wrapperId:string, total:number = 0, self:boolean = true):number{
+    let current = this.__findWrapperId(this.gridInfo.hierarchy, wrapperId);
+    if(current != null){
+      if((!self) && this.isVisble(current,'header')) { total += current.heights.header }
+      if(this.isVisble(current,'preheader')){ total += current.heights.preheader }
+      if(current.parentId !== undefined && current.parentId !== '' && current.parentId !== 'null'){
+        total = this.getElementOffset(current.parentId,total, false)
+      }
+    }
+    return total
+  }
+
   public getSidebarStaticWidth(gridWrapper: BnGridWrapper,pos:string){
     let width = gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].width;
     return width
@@ -373,8 +406,30 @@ export class BnLayoutGridService {
         total = this.getPreHeaderOffset(current.parentId, total)
       }
     }
-  
     return total
+  }
+
+  getWrapperCurVals(current:BnGridWrapper):BnWrapperCurVals {
+
+    const selfRef = this.getFixedStaticWidth(current);
+    const parent = this.getFixedParentWidth(current)
+    const useForSelf =  (selfRef > parent? parent:selfRef);
+    const useWidth = this.useWidth(current);
+    const useCenterSpace = current.config.centered && useWidth > 0;
+    
+    return {
+      parentWidth: parent,
+      staticWidth: useForSelf,
+      useWidth: useWidth,
+      useCenterSpace:useCenterSpace,
+      hasParent: current.parentId !== '',
+      sidebarWidths: this.getSidebarsWidths(current.wrapperId),
+      centerSpaceWidth: (this.layoutSvc.layoutInfo.window.width - useForSelf) / 2 ,
+      fullSize: window.innerWidth,
+      fullScreen: this.isFullscreen(current) || (current.config.centered && this.layoutSvc.layoutInfo.window.width < current.config.maxWidth) ,
+      calcHeights:this.checkCalcHeights(current)
+    }
+
   }
 
 
@@ -383,7 +438,6 @@ export class BnLayoutGridService {
     const randomChars = Math.random().toString(36).substr(2, 3).toUpperCase();
     return randomLetter + randomChars;
   }
-
 
   /************************************************************************
      Calc Heights
@@ -438,7 +492,7 @@ export class BnLayoutGridService {
       } else total = this.layoutSvc.layoutInfo.window.height
       gridWrapper.heights.preheader = total;
     }
-    console.log( gridWrapper.heights.preheader)
+    //console.log( gridWrapper.heights.preheader)
     
     return gridWrapper.heights.preheader;
   }
@@ -464,7 +518,7 @@ export class BnLayoutGridService {
   public witdhInNumber(width:string, windowWidth:number):number{
     let widthNum:number = 0
     if(width.match(/vw|\%/)) { widthNum = ( windowWidth / 100) * coerceNumberProperty(width.replace(/vw|\%/,'')); }
-    if(width.match(/px/)) { widthNum = coerceNumberProperty(width.replace(/px/,'')); }
+    if(width.match(/px/)) { widthNum = ( windowWidth / 100) * coerceNumberProperty(width.replace(/px/,'')); }
     return widthNum
   }
 
@@ -475,5 +529,47 @@ export class BnLayoutGridService {
     else return cWidth;
   }
 
+  
+  /************************************************************************
+     Animation Meta
+  */
+  public animateActiveMeta(animateConfig:BnGridAnimateObject): AnimationMetadata[] {
+    return [
+      style({ 
+        left: animateConfig.left.from, 
+        width:animateConfig.width.from, 
+        padding: animateConfig.padding.from }),
+      animate(animateConfig.time + ' ease-in', style({ 
+        left: animateConfig.left.to,
+        width: animateConfig.width.to, 
+        padding: animateConfig.padding.to }))
+    ];
+  }
+  
+  public animateInactiveMeta(animateConfig:BnGridAnimateObject): AnimationMetadata[] {
+    return [
+      style({ 
+        left: animateConfig.left.from, 
+        width:animateConfig.width.from, 
+        padding: animateConfig.padding.from }),
+      animate(animateConfig.time + ' ease-out', style({ 
+        left: animateConfig.left.to, 
+        width: animateConfig.width.to, 
+        padding: animateConfig.padding.to  
+      })),
+    ];
+  }
+
+  getDefaultAnimationConfig():BnGridAnimateObject{
+    return  {
+      left: { from: '*', to: '*'},
+      padding: { from: '*', to: '*'},
+      width: { from: '*', to: '*'},
+      time: '400ms'
+    };
+  }
+
+  
+  
 
 }

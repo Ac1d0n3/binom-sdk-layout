@@ -1,15 +1,15 @@
 
 <section bnLayoutAppWrapper cdkScrollable >
 
-  <section bnLayoutWrapper="root" maxWidth="1400" centeredX [calcHeights]="false" [grid]="true" noInheritGrid>
+  <section bnLayoutWrapper="root" maxWidth="1400" centered  [calcHeights]="false" [grid]="true" animated>
 
-    <section bnLayoutPreHeader [visible]="preheader" cdkScrollable >
+    <section bnLayoutPreHeader [visible]="preheader" cdkScrollable class="sample-side">
       <h1>PREHEADER</h1>
       <div style="height:200px">...</div>
     </section>
 
-    <section bnLayoutHeader height="64" shadow sticky animated fullWidth >
-      <mat-toolbar>
+    <section bnLayoutHeader height="64" fullWidth fullWidthContent="none" shadow sticky transparentAos class="mainHeader bnl-transparent-header-on">
+      <mat-toolbar color="accent" class="bn-transparent">
         <span bnAos="fadeIn">
         <button mat-button (click)="preheader = !preheader"> PreHeader</button>
         <button mat-button (click)="precontent = !precontent"> PreContent</button>
@@ -19,10 +19,12 @@
         <button mat-button [routerLink]="['./home']"> home</button>
         <button mat-button [routerLink]="['./nested']"> nested</button>
       </span>
+      <span class="toolbar-spacer"></span>
+      <bn-layout-switch-menu allowGridSettings allowVisible ></bn-layout-switch-menu>
       </mat-toolbar>
     </section>
 
-    <section bnLayoutSidebar cdkScrollable  [visible]="sidebarleft" class="sample-side" width="300">
+    <section bnLayoutSidebar inHeader inFooter cdkScrollable  [visible]="sidebarleft" class="sample-side" width="300">
       
       <div >
         SIDEBAR
@@ -30,9 +32,8 @@
 
     </section>
 
-    
 
-    <section bnLayoutContent cdkScrollable >
+    <section bnLayoutContent cdkScrollable>
 
       <router-outlet #outlet="outlet"></router-outlet>
 

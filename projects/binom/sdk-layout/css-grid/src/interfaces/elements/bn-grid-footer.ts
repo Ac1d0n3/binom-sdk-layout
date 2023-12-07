@@ -1,4 +1,4 @@
 export interface BnGridFooter {
     fullWidth:boolean;
-    useMaxWitdhForContent:boolean;
+    fullWidthContent: 'always' | 'none' | 'fullscreen'
 }

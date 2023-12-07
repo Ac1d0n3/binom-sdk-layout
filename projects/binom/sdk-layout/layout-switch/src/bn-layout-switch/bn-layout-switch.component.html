@@ -1,1 +1,98 @@
-<p>bn-layout-switch works!</p>
+
+<div class="bn-menu-group">
+    <ng-container *ngIf="isInit">
+        <div class="bn-menu-group-header regular-border" style="margin-top: -10px;">
+            <h2 class="accent-color"> {{'layout.global' | translate }}</h2>
+        </div>
+        <div class="bn-menu-row regular-border" *ngIf="allowFullscreen">
+            <mat-checkbox aria-label="fullscreen switch" [(ngModel)]="gridInfo.fullscreen" (ngModelChange)="changeValue('fullscreen')">
+                {{'layout.fullscreen' | translate }}
+            </mat-checkbox>
+            <div class="bn-menu-icon">
+                <span class="material-icons-outlined">fullscreen</span>
+            </div>
+        </div>
+
+        <div class="bn-menu-row-switch regular-border" *ngIf="allowGridSettings">
+            <mat-checkbox  aria-label="autoDarkMode" [(ngModel)]="gridInfo.alwaysGrid" (ngModelChange)="changeValue('alwaysGrid')">
+                {{'layout.grid' | translate }} </mat-checkbox>
+            <mat-slide-toggle style="margin-top:8px" [(ngModel)]="gridInfo.grid" (change)="changeValue('grid')"> </mat-slide-toggle> 
+               
+            <div class="bn-menu-icon">
+                <span class="material-icons-outlined">{{gridInfo.grid? 'grid_on':'grid_off'}}</span>
+            </div>
+        </div>
+
+        <div class="bn-menu-row-switch regular-border" *ngIf="allowCalcHeights">
+            <mat-checkbox  aria-label="autoDarkMode" [(ngModel)]="gridInfo.alwaysCalcHeights" (ngModelChange)="changeValue('alwaysCalcHeights')">
+                {{'layout.fixed' | translate }} </mat-checkbox>
+            <mat-slide-toggle  style="margin-top:8px" [(ngModel)]="gridInfo.calcHeights" (change)="changeValue('calcHeights')"> </mat-slide-toggle> 
+               
+            <div class="bn-menu-icon">
+                <span class="material-icons-outlined">height</span>
+            </div>
+        </div>
+
+        <div class="bn-menu-group-header regular-border" *ngIf="allowVisible || allowGridSettings">
+            <h2 class="accent-color"> {{'layout.wrapper' | translate }}</h2>
+        </div>
+        
+        <ng-container *ngIf="!onlyFirstWrapper && (onlyFirstWrapper || allowGridSettings)">
+            
+            <div class="bn-menu-formfield" style="height:60px;overflow:hidden">
+                <mat-form-field appearance="outline">
+                <mat-label>{{'layout.wrapper' | translate }}</mat-label>
+                <mat-select [(ngModel)]="currentWrapper" (ngModelChange)="change()">
+                    <ng-container
+                        *ngFor="let node of gridInfo.hierarchy"
+                        [ngTemplateOutlet]="treeNode"
+                        [ngTemplateOutletContext]="{ $implicit: node }">
+                    </ng-container>
+    
+                    <ng-template #treeNode let-data>
+                        <mat-option [value]="data"> {{data.wrapperId}} </mat-option>
+                        <ng-container *ngIf="data.children">
+                            <ng-container
+                                *ngFor="let child of data.children"
+                                [ngTemplateOutlet]="treeNode"
+                                [ngTemplateOutletContext]="{ $implicit: child }">
+                            </ng-container>
+                        </ng-container>
+                    </ng-template>
+                </mat-select>
+                </mat-form-field>
+            </div>
+        </ng-container>
+   
+        <ng-container *ngIf="allowVisible">
+            <div class="bn-menu-group-sub-header regular-border">
+                <h2> {{'layout.visible' | translate }}</h2>
+            </div>
+            <ng-container *ngFor="let el of allowedVisibleElements">
+                <ng-container *ngIf="currentWrapper.has[el]">
+                    <div class="bn-menu-row regular-border">
+                        <mat-checkbox  aria-label="autoDarkMode" [(ngModel)]="currentWrapper.visible.active[el]" (ngModelChange)="changeWrapperVisible(el)">
+                            {{( 'layout.'+ el ) | translate }} </mat-checkbox>
+                        <div class="bn-menu-icon"></div>
+                    </div>
+                </ng-container>
+            </ng-container>
+        </ng-container>
+
+        <ng-container *ngIf="allowedGridSettings.length > 0 && allowGridSettings">
+            <div class="bn-menu-group-sub-header regular-border" style="margin-top:0px">
+                <h2> {{'layout.gridsettings' | translate }}</h2>
+            </div>
+            <ng-container *ngFor="let el of allowedGridSettings">
+                <div class="bn-menu-row regular-border">
+                    <mat-checkbox  aria-label="autoDarkMode" [(ngModel)]="currentWrapper.config.active[el]" (ngModelChange)="changeWrapperVisible(el)">
+                        {{( 'layout.'+ el ) | translate }} </mat-checkbox>
+                    <div class="bn-menu-icon"></div>
+                </div>
+            </ng-container>
+        </ng-container> 
+        
+
+    </ng-container>
+
+</div>

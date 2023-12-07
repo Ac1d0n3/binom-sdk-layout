@@ -1,4 +1,4 @@
-div [class*="bnl-el-"]{
+div [class*="bnl-el-"], section [class*="bnl-el-"]{
     position: relative;
     box-sizing: border-box;
 }
@@ -23,7 +23,6 @@ div [class*="bnl-el-"]{
     display: grid;
     display: -ms-grid;
     grid-gap: 0;
-    transition: 600ms;
     position: relative;
     height: auto;
 }
@@ -45,7 +44,7 @@ div [class*="bnl-el-"]{
          transition: background .8s ease-in;
 }
 
-.bnl-transparent-header-on .mat-toolbar,.bnl-transparent-header-off .mat-toolbar, .bn-transparent{
+.bnl-transparent-header-on .mat-toolbar, .bnl-transparent-header-off .mat-toolbar, .bn-transparent , .bnl-el-header .mat-toolbar{
     background: none !important;
 }
 
@@ -57,7 +56,7 @@ div [class*="bnl-el-"]{
 .bnl-el-preheader {          grid-area: preheader; overflow: auto;}
 .bnl-el-header:not(.fixed) { grid-area: header; overflow: auto;}
 .bnl-el-precontent {         grid-area: precontent;overflow: auto; }
-.bnl-el-content {            grid-area: content;  overflow-y: auto; }
+.bnl-el-content {            grid-area: content;  overflow: auto; }
 .bnl-el-footer {             grid-area: footer; overflow: auto; }
 .bnl-el-sidebarleft {        grid-area: sidebarleft; overflow: auto; }
 .bnl-el-sidebarright {       grid-area: sidebarright; overflow: auto;  }
@@ -70,3 +69,8 @@ div [class*="bnl-el-"]{
     grid-area: unset !important;
 }
 
+.bn-grid-block{
+    display: -ms-grid;
+    display: grid;
+    overflow: hidden;
+}

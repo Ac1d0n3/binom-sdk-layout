@@ -24,11 +24,7 @@ export class BnLayoutPreHeaderDirective extends BnLayoutElementBaseDirective {
   get fullWidth(): boolean { return this._fullWidth;}
   @Input() set fullWidth(val: BooleanInput) { this._fullWidth = coerceBooleanProperty(val); }
 
-  private _useMaxWitdhForContent: boolean = false;
-  get useMaxWitdhForContent(): boolean { return this._useMaxWitdhForContent;}
-  @Input() set useMaxWitdhForContent(val: BooleanInput) { this._useMaxWitdhForContent = coerceBooleanProperty(val); }
-
-  @Input() fullAs:'window'|'content' = 'window';
+  @Input() fullWidthContent:  'always' | 'none' | 'fullscreen' = 'always';
 
   ngOnInit():void{
     this.onInit();
@@ -41,14 +37,12 @@ export class BnLayoutPreHeaderDirective extends BnLayoutElementBaseDirective {
     if(this.height > 0) this.renderUtil.setHeight(this.height);
     else this.renderUtil.setStyle('height','fit-content');
 
-    this.configSvc.setPreheaderDefaults(this.current, this.height,  this.fullHeight, this.fullWidth, this.useMaxWitdhForContent, this.fullAs);
+    this.configSvc.setPreheaderDefaults(this.current, this.height,  this.fullHeight, this.fullWidth, this.fullWidthContent);
   }
 
   override afterViewInit(){
     if(this.height === 0 && this.current){
-
       this.configSvc.setElementHeight(this.current, this.elTag, this.el.nativeElement.offsetHeight);
-      console.log(this.el.nativeElement.offsetHeight)
     }
   }
 }

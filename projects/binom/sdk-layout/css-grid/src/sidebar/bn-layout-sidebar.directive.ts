@@ -47,9 +47,6 @@ export class BnLayoutSidebarDirective extends BnLayoutElementBaseDirective {
   private _createToggleOnPhone:boolean = false; get createToggleOnPhone():boolean{ return this._createToggleOnPhone; }
   @Input() set createToggleOnPhone(val:BooleanInput){ this._createToggleOnPhone = coerceBooleanProperty(val); }
 
-  private _animated:boolean = false; get animated():boolean{ return this._animated; }
-  @Input() set animated(val:BooleanInput){ this._animated= coerceBooleanProperty(val); }
-
   private _sticky: boolean = false; get sticky(): boolean { return this._sticky;}
   @Input() set sticky(val: BooleanInput) { this._sticky = coerceBooleanProperty(val); }
 
@@ -63,7 +60,7 @@ export class BnLayoutSidebarDirective extends BnLayoutElementBaseDirective {
 
   private __initSidebar(){
     if(this.current)
-    this.configSvc.setSidebarDefaults(this.current, this.position, this.createToggle, this.createToggleOnPhone, this.inFooter, this.inHeader, this.iconSidebar, this.iconSidebarToggle, this.animated, !this.iconSidebarToggle && this.iconSidebar ? this.configSvc.iconSidebarWidth:this.width )
+    this.configSvc.setSidebarDefaults(this.current, this.position, this.createToggle, this.createToggleOnPhone, this.inFooter, this.inHeader, this.iconSidebar, this.iconSidebarToggle,  !this.iconSidebarToggle && this.iconSidebar ? this.configSvc.iconSidebarWidth:this.width )
     this.renderUtil.setStyle('width',this.width +'px')
   }
   

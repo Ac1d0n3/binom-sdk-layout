@@ -16,9 +16,7 @@ export class BnLayoutFooterDirective extends BnLayoutElementBaseDirective {
   get fullWidth(): boolean { return this._fullWidth;}
   @Input() set fullWidth(val: BooleanInput) { this._fullWidth = coerceBooleanProperty(val); }
 
-  private _useMaxWitdhForContent: boolean = false;
-  get useMaxWitdhForContent(): boolean { return this._useMaxWitdhForContent;}
-  @Input() set useMaxWitdhForContent(val: BooleanInput) { this._useMaxWitdhForContent = coerceBooleanProperty(val); }
+  @Input() fullWidthContent:  'always' | 'none' | 'fullscreen' = 'always';
 
   private _height:number = 200;
   get height():number{ return this._height; }
@@ -34,7 +32,7 @@ export class BnLayoutFooterDirective extends BnLayoutElementBaseDirective {
     if(!this.current) return;
     this.configSvc.setElementHeight(this.current, this.elTag, this.height);
     this.renderUtil.setHeight(this.height);
-    this.configSvc.setFooterDefaults(this.current, this.fullWidth, this.useMaxWitdhForContent);
+    this.configSvc.setFooterDefaults(this.current, this.fullWidth, this.fullWidthContent);
   }
   
 }

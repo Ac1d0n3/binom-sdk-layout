@@ -1,0 +1,16 @@
+{
+    "layout":{
+        "grid": "Grid",
+        "wrapper": "Wrapper",
+        "fullscreen": "Volle breite",
+        "fixed": "fixiert",
+        "noInerhit": "überschreiben aus",
+        "global": "Global",
+        "visible": "Sichtbare Elemente",
+        "preheader": "Pre Kopflleiste",
+        "header": "Kopfleiste",
+        "sidebarleft": "Seitenleiste links",
+        "sidebarright": "Seitenleiste rechts",
+        "footer": "Fußleiste"
+      }
+}

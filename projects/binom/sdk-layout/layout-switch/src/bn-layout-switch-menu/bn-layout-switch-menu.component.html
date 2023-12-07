@@ -1,1 +1,17 @@
-<p>bn-layout-switch-menu works!</p>
+<button mat-icon-button class="font-fa" 
+    [matMenuTriggerFor]="menu"  aria-label="layout settings"
+    matTooltip="{{ 'tooltips.layout' | translate }}" [matTooltipDisabled]="!enableToolTips">
+    <bn-layout-device-icon></bn-layout-device-icon>
+</button>
+
+<mat-menu #menu="matMenu">
+    <div  (click)="$event.stopPropagation();">
+        <bn-layout-switch      [onlyFirstWrapper]="onlyFirstWrapper"
+        [allowGridSettings]="allowGridSettings"
+        [allowVisible]="allowVisible"
+        [allowedVisibleElements]="allowedVisibleElements"
+        [allowFullscreen]="allowFullscreen"
+        [allowCalcHeights]="allowCalcHeights"></bn-layout-switch>      
+    </div>  
+</mat-menu>
+

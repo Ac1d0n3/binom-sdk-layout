@@ -1,0 +1,16 @@
+{
+    "layout": {
+        "grid": "Grid",
+        "wrapper": "Wrapper",
+        "fullscreen": "Full Width",
+        "fixed": "Fixed",
+        "noInerhit": "Override Off",
+        "global": "Global",
+        "visible": "Visible Items",
+        "preheader": "Preheader",
+        "header": "Header",
+        "sidebarleft": "Left Sidebar",
+        "sidebarright": "Right Sidebar",
+        "footer": "Footer"
+      }
+}

@@ -21,8 +21,9 @@ export class BnGridConfigService {
       isRandom: false,
       level: 0,
       config:{
-        active:{ grid: false, calcHeights:false},
-        def: { grid: false, calcHeights:false },
+        active:{ grid: true, calcHeights:false},
+        def: { grid: true, calcHeights:false },
+        animated:false,
         noFullScreen:false,
         noInheritGrid:false,
         noInheritCalcHeights:false,
@@ -30,8 +31,7 @@ export class BnGridConfigService {
         width: '100%',
         offsetTop: 0,
         offsetBottom:0,
-        centerX: false,
-        centerY: false,
+        centered: false,
       },
       has: { preheader:false, header:false, sidebarleft:false, precontent:false, content:false, sidebarright:false, footer:false },
       visible:{
@@ -40,12 +40,12 @@ export class BnGridConfigService {
       },
       heights: { wrapper:0, preheader:0, header:0, sidebarleft:0, precontent:0, content:0, sidebarright:0, footer:0 },
       elConfig:{
-        preheader: { height:0, fullAs: 'window', fullHeight: false, fullWidth: false, useMaxWitdhForContent:false}, 
-        header: { sticky: false, transparentAos: false, fullWidth: false, useMaxWitdhForContent:false },
-        footer: { fullWidth: false, useMaxWitdhForContent:false },
+        preheader: { height:0,  fullHeight: false, fullWidth: false, fullWidthContent:'always'}, 
+        header: { sticky: false, transparentAos: false, fullWidth: false,  fullWidthContent:'none' },
+        footer: { fullWidth: false,  fullWidthContent:'always' },
         sidebars:{ 
-          right: {animated:false, width: 200, createToggle:false, createToogleOnPhone:false, inFooter: false, inHeader: false, iconSidebar: false, iconSidebarToggle: false },
-          left: {animated:false, width: 200, createToggle:false, createToogleOnPhone:false, inFooter: false, inHeader: false, iconSidebar: false , iconSidebarToggle: false}
+          right: { width: 200, createToggle:false, createToogleOnPhone:false, inFooter: false, inHeader: false, iconSidebar: false, iconSidebarToggle: false },
+          left: {width: 200, createToggle:false, createToogleOnPhone:false, inFooter: false, inHeader: false, iconSidebar: false , iconSidebarToggle: false}
         },
         content:{
           maxWidth:0,
@@ -53,7 +53,6 @@ export class BnGridConfigService {
         precontent:{
           fullHeight:false,
           height:0,
-          fullAs: 'window'
         }
       },
       children: []
@@ -77,27 +76,27 @@ export class BnGridConfigService {
   }
 
   
-  setHeaderDefaults(gridWrapper:BnGridWrapper, sticky:boolean, fullWidth:boolean, transparentAos:boolean, useMaxWitdhForContent:boolean):void{
+  setHeaderDefaults(gridWrapper:BnGridWrapper, sticky:boolean, fullWidth:boolean, transparentAos:boolean, fullWidthContent: 'always' | 'none' | 'fullscreen'):void{
     gridWrapper.elConfig.header.sticky = sticky;
     gridWrapper.elConfig.header.transparentAos = transparentAos;
     gridWrapper.elConfig.header.fullWidth = fullWidth;
-    gridWrapper.elConfig.header.useMaxWitdhForContent = useMaxWitdhForContent;
+    gridWrapper.elConfig.header.fullWidthContent = fullWidthContent;
   }
 
-  setPreheaderDefaults(gridWrapper:BnGridWrapper, height:number, fullHeight:boolean, fullWidth:boolean, useMaxWitdhForContent:boolean, fullAs:'window' | 'content'):void{
+  setPreheaderDefaults(gridWrapper:BnGridWrapper, height:number, fullHeight:boolean, fullWidth:boolean,  fullWidthContent: 'always' | 'none' | 'fullscreen'):void{
     gridWrapper.elConfig.preheader.fullHeight = fullHeight;
     gridWrapper.elConfig.preheader.fullWidth = fullWidth;
-    gridWrapper.elConfig.preheader.useMaxWitdhForContent = useMaxWitdhForContent;
+    gridWrapper.elConfig.preheader.fullWidthContent = fullWidthContent;
     gridWrapper.elConfig.preheader.height = height;
-    gridWrapper.elConfig.preheader.fullAs = fullAs;
+   
   }
 
-  setFooterDefaults(gridWrapper:BnGridWrapper, fullWidth:boolean, useMaxWitdhForContent:boolean):void{
+  setFooterDefaults(gridWrapper:BnGridWrapper, fullWidth:boolean,  fullWidthContent: 'always' | 'none' | 'fullscreen'):void{
     gridWrapper.elConfig.footer.fullWidth = fullWidth;
-    gridWrapper.elConfig.footer.useMaxWitdhForContent = useMaxWitdhForContent;
+    gridWrapper.elConfig.footer.fullWidthContent = fullWidthContent;
   }
 
-  setWrapperDefaults(gridWrapper: BnGridWrapper, grid:boolean, noInheritGrid:boolean, calcHeights:boolean, noInheritCalcHeights:boolean, noFullScreen:boolean, centeredX:boolean, centeredY:boolean, offsetTop:number, offsetBottom:number):void {
+  setWrapperDefaults(gridWrapper: BnGridWrapper, grid:boolean, animated:boolean, noInheritGrid:boolean, calcHeights:boolean, noInheritCalcHeights:boolean, noFullScreen:boolean, centered:boolean, offsetTop:number, offsetBottom:number):void {
     gridWrapper.config.noInheritGrid = noInheritGrid;
     gridWrapper.config.noInheritCalcHeights = noInheritCalcHeights;
     gridWrapper.config.active.grid = grid;
@@ -105,8 +104,7 @@ export class BnGridConfigService {
     gridWrapper.config.active.calcHeights = calcHeights;
     gridWrapper.config.def.calcHeights = calcHeights;
     gridWrapper.config.noFullScreen = noFullScreen;
-    gridWrapper.config.centerX = centeredX;
-    gridWrapper.config.centerY = centeredY;
+    gridWrapper.config.centered = centered;
     gridWrapper.config.offsetBottom = offsetBottom;
     gridWrapper.config.offsetTop = offsetTop;
   }
@@ -136,12 +134,12 @@ export class BnGridConfigService {
     return gridWrapper.config.width;
   }
 
-  setSidebarDefaults(gridWrapper: BnGridWrapper, pos:string, createToggle:boolean, createToogleOnPhone:boolean, inFooter:boolean, inHeader:boolean, iconSidebar:boolean,iconSidebarToggle:boolean, animated:boolean, width:number ):void {
+  setSidebarDefaults(gridWrapper: BnGridWrapper, pos:string, createToggle:boolean, createToogleOnPhone:boolean, inFooter:boolean, inHeader:boolean, iconSidebar:boolean,iconSidebarToggle:boolean, width:number ):void {
     gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].inFooter = inFooter;
     gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].inHeader = inHeader;
     gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].iconSidebar = iconSidebar;
     gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].iconSidebarToggle = iconSidebarToggle;
-    gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].animated = animated;
+
     gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].width = width;
     gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].createToggle = createToggle;
     gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].createToogleOnPhone = createToogleOnPhone;

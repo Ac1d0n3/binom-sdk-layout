@@ -3,7 +3,7 @@ export interface BnGridSidebar {
     inHeader:boolean;
     inFooter:boolean;
     iconSidebar:boolean;
-    animated:boolean;
+
     iconSidebarToggle:boolean;
     createToggle:boolean;
     createToogleOnPhone:boolean;

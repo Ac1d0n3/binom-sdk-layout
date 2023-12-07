@@ -30,12 +30,7 @@ export abstract class BnLayoutElementBaseDirective {
   protected renderUtil: RendererUtils;
   protected renderer = inject(Renderer2);
   protected el = inject(ElementRef);
-
   constructor() { this.renderUtil = new RendererUtils(this.renderer, this.el); }
-
-  //-------------------------------------------------------------------------------------
-  // Shared
-
   protected isInit: boolean = false;
   protected belongsToWrapper!: string;
   protected current: BnGridWrapper | null = null;
@@ -62,17 +57,16 @@ export abstract class BnLayoutElementBaseDirective {
   }
 
   private __handleVisibleChange(){
-   
     if(this.current){
-      console.log(this.isServiceEvent,this.elTag, this.belongsToWrapper)
       if(this.isInit && !this.isServiceEvent) {
         this.gridSvc.setVisibleByWrapper(this.current, this.elTag, this.visible, true,this.isServiceEvent);
       } else {
         this.visibleChange.emit(this.visible)
       }
-      this.toggleVisible();
+      
       this.isServiceEvent = false;
     }
+    this.toggleVisible();
    
   }
 
@@ -81,7 +75,6 @@ export abstract class BnLayoutElementBaseDirective {
       if(eventData.action === 'visible'){
         this.isServiceEvent = true;
         this.visible = this.current.visible.active[this.elTag as keyof BnGridElements]
-        this.toggleVisible();
       }
     }
   }
@@ -90,7 +83,6 @@ export abstract class BnLayoutElementBaseDirective {
     this.renderUtil.toggleVisible(this.visible); 
   }
 
-  
 
   //-------------------------------------------------------------------------------------
   // ON INIT BASE Functions
@@ -100,8 +92,10 @@ export abstract class BnLayoutElementBaseDirective {
     this.__checkBelongsTo();
     if(!this.current || !this.elTag) return;
 
+    this.renderUtil.toggleShadow(this.shadow,this.shadowLevel);
+
     if(this.current.has[this.elTag as keyof BnGridElements]){
-      this.__logMsg('warn',  { function: 'Warning', msg: 'DUBLICATE FOR: ' + this.elTag });
+      this.__logMsg('warn',  { function: 'Warning', msg: 'Dublicate Element for: ' + this.elTag });
       this.renderUtil.setStyle('display', 'none', true);
     }
 
@@ -138,17 +132,11 @@ export abstract class BnLayoutElementBaseDirective {
   protected handleLayoutEvent(eventData:BnGridWrapperEvent):void {
     if(!this.current) return;
 
-
-
     if(eventData.source && (eventData.wrapper === this.belongsToWrapper || this.belongsToWrapper === '' )){
-      console.log('---------------------------', this.elTag, this.belongsToWrapper, eventData)
-
+      
       if(eventData.action === 'visible' && eventData.source === this.elTag && eventData.wrapper === this.belongsToWrapper && eventData.outsideEvent){
         console.log('-->should visible', this.elTag, this.belongsToWrapper)
         this.updateVisible(eventData);
-      }
-      if(eventData.action === 'visible' && eventData.source === this.elTag && eventData.wrapper === this.belongsToWrapper && !eventData.outsideEvent){
-        console.log('-->should update widths', this.elTag, this.belongsToWrapper)
       }
       
       if(eventData.action === 'ngAfterViewInit' && eventData.level > this.current.level){
@@ -156,8 +144,6 @@ export abstract class BnLayoutElementBaseDirective {
       }
      
     }
-
-    
 
     if(eventData.wrapper === 'all' && eventData.parent === 'all' && eventData.action === 'resize'){
       console.log('--> should update heights if calcHeights === true', this.elTag, this.belongsToWrapper);
