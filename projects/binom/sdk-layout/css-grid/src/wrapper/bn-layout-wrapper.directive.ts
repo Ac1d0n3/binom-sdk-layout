@@ -256,7 +256,7 @@ export class BnLayoutWrapperDirective {
     const fromColumns = '*';
     const toColumns = gridSettings.gridColumns;
 
-    if(this.fullScreenEvent && !this.firstEvent && this.current?.parentId === '') {
+    if(this.fullScreenEvent && !this.firstEvent && this.current?.parentId === '' && this.current.config.animated) {
       this.fullScreenEvent = false;
       this.animateGridColumns(fromColumns, toColumns);
     

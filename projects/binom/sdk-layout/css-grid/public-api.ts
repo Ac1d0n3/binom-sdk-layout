@@ -1,6 +1,7 @@
 
 export * from './src/bn-layout-grid.service';
 export * from './src/shared/bn-layout-element-base.directive';
+export * from './src/shared/bn-layout-element-animate-base.directive';
 
 export * from './src/helper-svc/bn-grid-config.service';
 

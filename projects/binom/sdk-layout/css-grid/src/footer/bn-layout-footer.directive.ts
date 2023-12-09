@@ -1,22 +1,17 @@
 import { Directive, Input } from '@angular/core';
-import { BnLayoutElementBaseDirective } from '../shared/bn-layout-element-base.directive';
 import { BnLogSource } from '@binom/sdk-core/logger';
 import { BooleanInput, NumberInput, coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { BnLayoutElementAnimateBaseDirective } from '../shared/bn-layout-element-animate-base.directive';
+import { BnGridWrapperEvent } from '../interfaces/bn-grid-wrapper-event';
 
 @Directive({
   selector: '[bnLayoutFooter]',
   standalone: true
 })
-export class BnLayoutFooterDirective extends BnLayoutElementBaseDirective {
+export class BnLayoutFooterDirective extends BnLayoutElementAnimateBaseDirective {
 
   override elTag: string = 'footer';
   override logSource: BnLogSource = { module: 'bnLayout', source: 'FooterDirective' }
-
-  private _fullWidth: boolean = false;
-  get fullWidth(): boolean { return this._fullWidth;}
-  @Input() set fullWidth(val: BooleanInput) { this._fullWidth = coerceBooleanProperty(val); }
-
-  @Input() fullWidthContent:  'always' | 'none' | 'fullscreen' = 'always';
 
   private _height:number = 200;
   get height():number{ return this._height; }
@@ -27,6 +22,9 @@ export class BnLayoutFooterDirective extends BnLayoutElementBaseDirective {
     this.__initFooter();
   }
 
+  protected override afterViewInit(): void {
+    this.__renderView();
+  }
 
   private __initFooter(){
     if(!this.current) return;
@@ -34,5 +32,28 @@ export class BnLayoutFooterDirective extends BnLayoutElementBaseDirective {
     this.renderUtil.setHeight(this.height);
     this.configSvc.setFooterDefaults(this.current, this.fullWidth, this.fullWidthContent);
   }
-  
+
+  protected override handleLayoutEvent(eventData:BnGridWrapperEvent):void {
+    if(!this.current) return;
+    if(eventData.action === 'fullscreen'){ 
+      this.fullScreenEvent = true; 
+      this.fullScreenState = eventData.state? eventData.state : false;
+      this.__renderView();
+    }
+    if(eventData.source && (eventData.wrapper === this.belongsToWrapper || this.belongsToWrapper === '' )){
+      if(eventData.action === 'visible' && eventData.source === this.elTag && eventData.wrapper === this.belongsToWrapper && eventData.outsideEvent){
+        this.updateVisible(eventData);
+      }
+    }
+  }
+
+  private __renderView(){
+    if(!this.current) return;
+    this.curVals = this.gridSvc.getWrapperCurVals(this.current);
+    this.animateConfig = this.gridSvc.getPreHeaderAnimationConfig(this.animateConfig, this.current, this.curVals,this.fullWidth, this.fullScreenState)
+    if(this.fullScreenEvent){ this.aniToggle = !this.fullScreenEvent; }
+    this.renderView(this.aniToggle)
+  }
+
+
 }

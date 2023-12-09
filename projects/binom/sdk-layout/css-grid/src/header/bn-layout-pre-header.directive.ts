@@ -1,13 +1,14 @@
 import { Directive, Input } from '@angular/core';
-import { BnLayoutElementBaseDirective } from '../shared/bn-layout-element-base.directive';
 import { BnLogSource } from '@binom/sdk-core/logger';
 import { BooleanInput, NumberInput, coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { BnLayoutElementAnimateBaseDirective } from '../shared/bn-layout-element-animate-base.directive';
+import { BnGridWrapperEvent } from '../interfaces/bn-grid-wrapper-event';
 
 @Directive({
   selector: '[bnLayoutPreHeader]',
   standalone: true
 })
-export class BnLayoutPreHeaderDirective extends BnLayoutElementBaseDirective {
+export class BnLayoutPreHeaderDirective extends BnLayoutElementAnimateBaseDirective {
 
   override elTag: string = 'preheader';
   override logSource: BnLogSource = { module: 'bnLayout', source: 'PreHeaderDirective' }
@@ -20,11 +21,6 @@ export class BnLayoutPreHeaderDirective extends BnLayoutElementBaseDirective {
   get fullHeight(): boolean { return this._fullHeight;}
   @Input() set fullHeight(val: BooleanInput) { this._fullHeight = coerceBooleanProperty(val); }
 
-  private _fullWidth: boolean = false;
-  get fullWidth(): boolean { return this._fullWidth;}
-  @Input() set fullWidth(val: BooleanInput) { this._fullWidth = coerceBooleanProperty(val); }
-
-  @Input() fullWidthContent:  'always' | 'none' | 'fullscreen' = 'always';
 
   ngOnInit():void{
     this.onInit();
@@ -44,5 +40,31 @@ export class BnLayoutPreHeaderDirective extends BnLayoutElementBaseDirective {
     if(this.height === 0 && this.current){
       this.configSvc.setElementHeight(this.current, this.elTag, this.el.nativeElement.offsetHeight);
     }
+    this.__renderView()
   }
+
+  protected override handleLayoutEvent(eventData:BnGridWrapperEvent):void {
+    if(!this.current) return;
+    if(eventData.action === 'fullscreen'){ 
+      this.fullScreenEvent = true; 
+      this.fullScreenState = eventData.state? eventData.state : false;
+      this.__renderView();
+    }
+    if(eventData.source && (eventData.wrapper === this.belongsToWrapper || this.belongsToWrapper === '' )){
+      if(eventData.action === 'visible' && eventData.source === this.elTag && eventData.wrapper === this.belongsToWrapper && eventData.outsideEvent){
+        console.log('-->should visible', this.elTag, this.belongsToWrapper)
+        this.updateVisible(eventData);
+      }
+    }
+  }
+
+  private __renderView(){
+    if(!this.current) return;
+    this.curVals = this.gridSvc.getWrapperCurVals(this.current);
+    this.animateConfig = this.gridSvc.getPreHeaderAnimationConfig(this.animateConfig, this.current, this.curVals,this.fullWidth, this.fullScreenState)
+    if(this.fullScreenEvent){ this.aniToggle = !this.fullScreenEvent; }
+    this.renderView(this.aniToggle)
+  }
+
+
 }

@@ -40,9 +40,9 @@ export class BnGridConfigService {
       },
       heights: { wrapper:0, preheader:0, header:0, sidebarleft:0, precontent:0, content:0, sidebarright:0, footer:0 },
       elConfig:{
-        preheader: { height:0,  fullHeight: false, fullWidth: false, fullWidthContent:'always'}, 
-        header: { sticky: false, transparentAos: false, fullWidth: false,  fullWidthContent:'none' },
-        footer: { fullWidth: false,  fullWidthContent:'always' },
+        preheader: { height:0,  fullHeight: false, fullWidth: false, fullWidthContent:'fullscreen'}, 
+        header: { sticky: false, transparentAos: false, fullWidth: false,  fullWidthContent:'fullscreen' },
+        footer: { fullWidth: false,  fullWidthContent:'fullscreen' },
         sidebars:{ 
           right: { width: 200, createToggle:false, createToogleOnPhone:false, inFooter: false, inHeader: false, iconSidebar: false, iconSidebarToggle: false },
           left: {width: 200, createToggle:false, createToogleOnPhone:false, inFooter: false, inHeader: false, iconSidebar: false , iconSidebarToggle: false}
@@ -56,6 +56,7 @@ export class BnGridConfigService {
         }
       },
       children: []
+      
     }
   }
 
@@ -101,6 +102,7 @@ export class BnGridConfigService {
     gridWrapper.config.noInheritCalcHeights = noInheritCalcHeights;
     gridWrapper.config.active.grid = grid;
     gridWrapper.config.def.grid = grid;
+    gridWrapper.config.animated = animated;
     gridWrapper.config.active.calcHeights = calcHeights;
     gridWrapper.config.def.calcHeights = calcHeights;
     gridWrapper.config.noFullScreen = noFullScreen;
@@ -145,7 +147,7 @@ export class BnGridConfigService {
     gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].createToogleOnPhone = createToogleOnPhone;
   }
   
-  toggleIconSidebarConfig(gridWrapper: BnGridWrapper, pos:string,width:number,toggle:boolean){
+  toggleIconSidebarConfig(gridWrapper: BnGridWrapper, pos:string, width:number, toggle:boolean){
     gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].iconSidebarToggle =toggle ;
     gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].width = toggle ? width: this.iconSidebarWidth;
   }

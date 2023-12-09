@@ -23,9 +23,7 @@ import { BnLayoutSwitchMenuComponent } from '@binom/sdk-layout/layout-switch';
     CdkScrollableModule, BnCssGridModule
   ],
   templateUrl: './app.component.html',
-
-  styleUrl: './app.component.scss',
-
+  styleUrl: './app.component.scss'
 })
 export class AppComponent {
   title = 'test';
@@ -61,6 +59,7 @@ export class AppComponent {
   preheader:boolean = true;
   sidebarleft:boolean = false;
   sidebarright:boolean = false;
+  toggleIconSidebar:boolean = false;
   precontent:boolean = true;
   footer:boolean = true;
 

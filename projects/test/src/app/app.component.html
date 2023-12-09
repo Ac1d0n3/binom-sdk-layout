@@ -3,17 +3,18 @@
 
   <section bnLayoutWrapper="root" maxWidth="1400" centered  [calcHeights]="false" [grid]="true" animated>
 
-    <section bnLayoutPreHeader [visible]="preheader" cdkScrollable class="sample-side">
+    <section bnLayoutPreHeader fullWidth   [visible]="preheader" cdkScrollable class="sample-side">
       <h1>PREHEADER</h1>
       <div style="height:200px">...</div>
     </section>
 
-    <section bnLayoutHeader height="64" fullWidth fullWidthContent="none" shadow sticky transparentAos class="mainHeader bnl-transparent-header-on">
+    <section bnLayoutHeader height="64" fullWidthContent="none"  fullWidth  shadow sticky class="mainHeader " >
       <mat-toolbar color="accent" class="bn-transparent">
         <span bnAos="fadeIn">
         <button mat-button (click)="preheader = !preheader"> PreHeader</button>
         <button mat-button (click)="precontent = !precontent"> PreContent</button>
         <button mat-button (click)="sidebarleft = !sidebarleft"> sidebarleft</button>
+        <button mat-button (click)="toggleIconSidebar = !toggleIconSidebar"> toggle IconSidebar</button>
         <button mat-button (click)="sidebarright = !sidebarright"> sidebarright</button>
         <button mat-button (click)="footer = !footer"> footer</button>
         <button mat-button [routerLink]="['./home']"> home</button>
@@ -24,25 +25,16 @@
       </mat-toolbar>
     </section>
 
-    <section bnLayoutSidebar inHeader inFooter cdkScrollable  [visible]="sidebarleft" class="sample-side" width="300">
-      
-      <div >
-        SIDEBAR
-      </div>
-
+    <section bnLayoutSidebar cdkScrollable [iconSidebarToggle]="toggleIconSidebar" iconSidebar [visible]="sidebarleft" class="sample-side" width="300">
+      <div>SIDEBAR</div>
     </section>
 
-
     <section bnLayoutContent cdkScrollable>
-
       <router-outlet #outlet="outlet"></router-outlet>
-
     </section>
 
     <section bnLayoutSidebar="right" [visible]="sidebarright" cdkScrollable class="sample-side">
-      <div >
-        SIDEBAR
-      </div>
+      <div>SIDEBAR</div>
     </section>
 
     <section bnLayoutFooter fullWidth [visible]="footer" style="background-color:olive">
