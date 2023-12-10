@@ -34,7 +34,7 @@ export abstract class BnLayoutElementAnimateBaseDirective {
   protected renderer = inject(Renderer2);
   protected el = inject(ElementRef);
   protected layoutSvc = inject(BnLayoutService)
-  private animBuilder = inject(AnimationBuilder);
+  protected animBuilder = inject(AnimationBuilder);
   constructor() { this.renderUtil = new RendererUtils(this.renderer, this.el); }
   protected isInit: boolean = false;
   protected belongsToWrapper!: string;
