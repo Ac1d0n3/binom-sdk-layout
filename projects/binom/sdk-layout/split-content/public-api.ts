@@ -1,2 +1,2 @@
 
-export * from './src/bn-split-content.directive';
+export * from './src/bn-split-content.component';

@@ -20,7 +20,8 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
   private scrollElOffset:number = 0;
   private __stickyHelper!:HTMLElement;
   private helperPlayer: AnimationPlayer | null = null;
-
+  private fixedChanged:boolean = false;
+  
   @Input() togglePosition:'middle'|'top'|'bootom' = 'middle';
 
   private _width:number = 200;
@@ -45,7 +46,6 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
     if(this.current){
       this.renderUtil.setStyle('width', !this.iconSidebarToggle ? this.width +'px': this.configSvc.iconSidebarWidth+'px' );
       this.gridSvc.toggleIconSidebar(this.current, this.position, this.width, this.iconSidebarToggle);
-      //if(this.visible){ this.__handleAnimate(); }
     }
   }
 
@@ -64,10 +64,6 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
     this.onInit();
     this.__initSidebar();
     this.__renderView()
-    
-  }
-  protected override afterViewInit(): void {
-   
   }
 
   private __initSidebar(){
@@ -136,11 +132,7 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
     this.fullScreenEvent = false;
   }
 
-  protected override toggleVisible(){ 
-    this.__renderView()
-   
-    //this.renderUtil.toggleVisible(this.visible); 
-  }
+  protected override toggleVisible(){ this.__renderView() }
 
   /* ************************************************************************ 
       EVENT Handling
@@ -154,9 +146,7 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
 
   protected override handleLayoutEvent(eventData:BnGridWrapperEvent):void {
     if(!this.current) return;
-
     if(this.sticky){ this.__viewUpdate(); }
-
     if(eventData.action === 'fullscreen'){ 
       this.fullScreenEvent = true; 
       this.fullScreenState = eventData.state? eventData.state : false;
@@ -167,14 +157,12 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
       this.iconsSidebarState = coerceBooleanProperty(eventData.state);
       this.__renderView();
     }
-
     if(eventData.source && (eventData.wrapper === this.belongsToWrapper || this.belongsToWrapper === '' )){
       if(eventData.action === 'visible' && eventData.source === this.elTag && eventData.wrapper === this.belongsToWrapper && eventData.outsideEvent){
         console.log('-->should visible', this.elTag, this.belongsToWrapper)
         this.updateVisible(eventData);
       }
     }
-
   }
 
   protected animateItHelper(toggle: boolean) {
@@ -185,6 +173,7 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
       const player: AnimationPlayer = factory.create(this.__stickyHelper);
       player.onDone(() => {this.renderHardHelper()});
       this.destroyPlayer();
+      if( this.helperPlayer ) this.helperPlayer.destroy();
       this.helperPlayer = player;
       player.play();
     }
@@ -193,7 +182,7 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
   /* ************************************************************************ 
       FIXED / Sticky / Transparent Header on AOS
   */ 
-  fixedChanged:boolean = false;
+  
   private _isFixed:boolean = false;
   get isFixed():boolean { return this._isFixed}
   set isFixed(val:boolean) {

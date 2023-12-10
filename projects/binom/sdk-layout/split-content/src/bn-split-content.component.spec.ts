@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BnIconSidebarComponent } from './bn-icon-sidebar.component';
+import { BnSplitContentComponent } from './bn-split-content.component';
 
-describe('BnIconSidebarComponent', () => {
-  let component: BnIconSidebarComponent;
-  let fixture: ComponentFixture<BnIconSidebarComponent>;
+describe('BnSplitContentComponent', () => {
+  let component: BnSplitContentComponent;
+  let fixture: ComponentFixture<BnSplitContentComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BnIconSidebarComponent]
+      imports: [BnSplitContentComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(BnIconSidebarComponent);
+    fixture = TestBed.createComponent(BnSplitContentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
