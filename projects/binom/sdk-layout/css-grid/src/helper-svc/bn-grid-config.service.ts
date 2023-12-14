@@ -44,8 +44,8 @@ export class BnGridConfigService {
         header: { sticky: false, transparentAos: false, fullWidth: false,  fullWidthContent:'fullscreen' },
         footer: { fullWidth: false,  fullWidthContent:'fullscreen' },
         sidebars:{ 
-          right: { width: 200, createToggle:false, createToogleOnPhone:false, inFooter: false, inHeader: false, iconSidebar: false, iconSidebarToggle: false },
-          left: {width: 200, createToggle:false, createToogleOnPhone:false, inFooter: false, inHeader: false, iconSidebar: false , iconSidebarToggle: false}
+          right: { width: 200, defWidth:200, createToggle:false, createToogleOnPhone:false, inFooter: false, inHeader: false, iconSidebar: false, iconSidebarToggle: false },
+          left: {width: 200, defWidth:200, createToggle:false, createToogleOnPhone:false, inFooter: false, inHeader: false, iconSidebar: false , iconSidebarToggle: false}
         },
         content:{
           maxWidth:0,
@@ -141,17 +141,11 @@ export class BnGridConfigService {
     gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].inHeader = inHeader;
     gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].iconSidebar = iconSidebar;
     gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].iconSidebarToggle = iconSidebarToggle;
-
     gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].width = width;
+    gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].defWidth = width;
     gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].createToggle = createToggle;
     gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].createToogleOnPhone = createToogleOnPhone;
   }
-  
-  toggleIconSidebarConfig(gridWrapper: BnGridWrapper, pos:string, width:number, toggle:boolean){
-    gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].iconSidebarToggle =toggle ;
-    gridWrapper.elConfig.sidebars[pos as keyof BnGridSidebars].width = toggle ? width: this.iconSidebarWidth;
-  }
-
 
   getElementHeight(gridWrapper: BnGridWrapper, elTag:string):number {
     return gridWrapper.heights[elTag as keyof BnGridHeights];

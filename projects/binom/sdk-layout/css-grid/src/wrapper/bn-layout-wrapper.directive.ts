@@ -212,8 +212,10 @@ export class BnLayoutWrapperDirective {
           this.fullScreenEvent = true;
         }
       }
-      if((data.wrapper === 'all' && data.parent === 'all') || (data.action === 'visible'  )){
+      if((data.wrapper === 'all' && data.parent === 'all') || (data.action === 'visible' )){
+        this.gridSvc.calcHeights(this.current);
         this.gridSvc.wrapperChildEvent(this.wrapperId, this.parentId, data.level, data.source, data.action, data.state, data.outsideEvent);
+       
       } 
       if(data.source === 'appwrapper' && data.action === 'updatesettings'){
         this.firstEvent = true;
@@ -259,7 +261,7 @@ export class BnLayoutWrapperDirective {
     if(this.fullScreenEvent && !this.firstEvent && this.current?.parentId === '' && this.current.config.animated) {
       this.fullScreenEvent = false;
       this.animateGridColumns(fromColumns, toColumns);
-    
+    console.log('????????')
     }
     else
       this.renderUtil.setStyle('grid-template-columns', toColumns);

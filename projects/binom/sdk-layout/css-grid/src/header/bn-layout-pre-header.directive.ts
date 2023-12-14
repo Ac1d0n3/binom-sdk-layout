@@ -61,7 +61,7 @@ export class BnLayoutPreHeaderDirective extends BnLayoutElementAnimateBaseDirect
   private __renderView(){
     if(!this.current) return;
     this.curVals = this.gridSvc.getWrapperCurVals(this.current);
-    this.animateConfig = this.gridSvc.getPreHeaderAnimationConfig(this.animateConfig, this.current, this.curVals,this.fullWidth, this.fullScreenState)
+    this.animateConfig = this.gridSvc.getPreHeaderAnimationConfig(this.current, this.curVals,this.fullWidth, this.fullScreenState)
     if(this.fullScreenEvent){ this.aniToggle = !this.fullScreenEvent; }
     this.renderView(this.aniToggle)
   }

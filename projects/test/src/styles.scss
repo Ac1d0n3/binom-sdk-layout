@@ -3,13 +3,10 @@
 
 @import '../../../dist/binom/sdk-layout/styles/layout.scss';
 
-.regular-border,.picklist-item{
+.regular-border{
     border-color: dimgray !important;
   }
 
-  .profile-default-image{
-    fill:#46a35e !important
-  }
 
 .mainHeader{
   background: olive;
@@ -51,8 +48,18 @@
   margin-bottom: -10px
 }
 
-.sample-side{
-  background-color: darkslategray;
-  color:white;
+.sample-side-left{
+  background-color: #efefef;
+  box-sizing: border-box;
+  border-right: 1px solid darkslategray;
+  width: 100%;
+  height: 100%;
+}
+
+.sample-side-right{
+  background-color: #efefef;
+  box-sizing: border-box;
+  border-left: 1px solid darkslategray;
+  width: 100%;
   height: 100%;
 }

@@ -71,9 +71,14 @@ export abstract class BnLayoutElementAnimateBaseDirective {
   // Visible
   @Output() visibleChange = new EventEmitter<boolean>();
 
+  visibleChanged:boolean = false;
   private _visible: boolean = true;
   get visible(): boolean { return this._visible; }
   @Input() set visible(val: boolean) { 
+    this.visibleChanged = false;
+    if(this.visible !== val && this.isInit) {
+      this.visibleChanged = true;
+    }
     this._visible = val; 
     this.__handleVisibleChange();
   }
@@ -195,9 +200,7 @@ export abstract class BnLayoutElementAnimateBaseDirective {
   }
 
   protected animateItDone(toggle: boolean){
-    this.animateConfig.left.from = this.animateConfig.left.to
-    this.animateConfig.width.from = this.animateConfig.width.to
-    this.animateConfig.padding.from = this.animateConfig.padding.to
+  
     this.renderHard();
   }
 
@@ -208,10 +211,8 @@ export abstract class BnLayoutElementAnimateBaseDirective {
   }
 
   protected renderView(toggle: boolean){
-
     if(!this.current) return;
-    console.log()
-    this.current.config.animated? this.animateIt(toggle) : this.renderHard();
+    this.current.config.animated && this.isInit? this.animateIt(toggle) : this.renderHard();
   }
 
 }

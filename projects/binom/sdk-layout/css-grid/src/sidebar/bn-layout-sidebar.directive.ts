@@ -63,14 +63,23 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
     this.elTag = this.elTag + this.position;
     this.onInit();
     this.__initSidebar();
-    this.__renderView()
+  }
+
+  protected override afterViewInit(): void {
+    this.__viewUpdate()
+    this.__renderView();
   }
 
   private __initSidebar(){
     if(!this.current) return;
-    if(this.sticky){ this.subscriptions.push(this.layoutSvc.scrollInfo$.subscribe((data:BnLayoutScroll) => this.__handleScroll(data )) ); }
+    if(this.sticky){ 
+      this.subscriptions.push(this.layoutSvc.scrollInfo$.subscribe((data:BnLayoutScroll) => this.__handleScroll(data )) ); 
+      this.renderUtil.setStyle('z-index','500');
+      
+    }
     this.configSvc.setSidebarDefaults(this.current, this.position, this.createToggle, this.createToggleOnPhone, this.inFooter, this.inHeader, this.iconSidebar, this.iconSidebarToggle,  !this.iconSidebarToggle && this.iconSidebar ? this.configSvc.iconSidebarWidth:this.width )
-    this.renderUtil.setStyle('width',this.width +'px')
+    this.renderUtil.setStyle('width',this.width +'px');
+
   }
 
   private __viewUpdate(){
@@ -87,49 +96,23 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
     else if(this.iconsSidebarEvent){ this.aniToggle = !this.iconsSidebarState; }
     else this.aniToggle = !this.visible;
 
-    if(this.visible){
-      if(this.iconsSidebarEvent){
-        this.animateConfig.width.from = this.iconSidebar? (this.iconSidebarToggle && this.iconsSidebarEvent? this.configSvc.iconSidebarWidth : this.width) +'px' : '0px';
-      } else {
-        this.animateConfig.width.from =  '0px';
-      }
-      this.animateConfig.width.to = this.current.elConfig.sidebars[this.position as keyof BnGridSidebars].width + 'px';
-      this.renderUtil.setStyle('overflow','auto');
-    } else {
-      if(!this.iconsSidebarEvent){
-        this.animateConfig.width.from = this.isInit?  this.current.elConfig.sidebars[this.position as keyof BnGridSidebars].width : 0 + 'px';
-      } 
-      this.renderUtil.setStyle('overflow','hidden');
-      
-      this.animateConfig.width.to =  '0px';
-    }
-
-    if(this.fixedChanged){
-      if(this.isFixed){
-        this.animateConfig.width.from =  this.visible? this.animateConfig.width.to : '0px';
-        this.animateConfig.width.to =  this.visible? this.animateConfig.width.to : '0px';
-      } else {
-        this.animateConfig.width.from =  this.visible? '*': '0px';
-        this.animateConfig.width.to =  this.visible? '*' : '0px';
-        this.animateConfig.left.from =  '0px';
-        this.animateConfig.left.to =  '0px';
-      }
-    }
-
-    if(this.isFixed ){
+    this.animateConfig = this.gridSvc.getSidebarAnimateConfig(this.fixedChanged,this.visible,this.visibleChanged,this.iconsSidebarEvent,this.width,this.isFixed,this.iconsSidebarState,this.fullScreenEvent,this.current,this.position,this.curVals);
+   
+    if(this.isFixed){
       this.renderUtil.setStyle('top', (this.current.elConfig.sidebars[this.position as keyof BnGridSidebars].inHeader? 0 : this.current.heights.header) + 'px');
-      this.animateConfig.left.from = this.curVals.centerSpaceWidth + 'px'
-      this.animateConfig.left.to =  this.curVals.centerSpaceWidth + 'px'
-      this.renderViewHelper(this.aniToggle);
+      this.renderUtil.setHeight(this.current.heights.wrapper - this.current.heights.header  );
     } else {
       this.renderUtil.removeStyle('top');
     }
+    this.renderViewHelper(this.aniToggle);
+   // console.log('-->',this.animateConfig,this.aniToggle, this.elTag);
 
-   // console.log(this.animateConfig,this.aniToggle);
     this.renderView(this.aniToggle);
+   
     this.fixedChanged = false;
     this.iconsSidebarEvent = false;
     this.fullScreenEvent = false;
+    this.visibleChanged = false;
   }
 
   protected override toggleVisible(){ this.__renderView() }
@@ -159,7 +142,6 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
     }
     if(eventData.source && (eventData.wrapper === this.belongsToWrapper || this.belongsToWrapper === '' )){
       if(eventData.action === 'visible' && eventData.source === this.elTag && eventData.wrapper === this.belongsToWrapper && eventData.outsideEvent){
-        console.log('-->should visible', this.elTag, this.belongsToWrapper)
         this.updateVisible(eventData);
       }
     }
@@ -219,8 +201,8 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
   } 
 
   renderViewHelper(toggle: boolean){
-    if(!this.current) return;
-    console.log('Render Helper',this.animateConfig)
+    if(!this.current || !this.__stickyHelper) return;
+    //console.log('Render Helper',this.animateConfig)
     this.current.config.animated? this.animateItHelper(toggle) : this.renderHardHelper();
   }
 

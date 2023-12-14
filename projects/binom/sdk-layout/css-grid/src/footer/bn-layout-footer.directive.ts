@@ -31,6 +31,7 @@ export class BnLayoutFooterDirective extends BnLayoutElementAnimateBaseDirective
     this.configSvc.setElementHeight(this.current, this.elTag, this.height);
     this.renderUtil.setHeight(this.height);
     this.configSvc.setFooterDefaults(this.current, this.fullWidth, this.fullWidthContent);
+    if(this.fullWidth)this.renderUtil.setStyle('z-index','500');
   }
 
   protected override handleLayoutEvent(eventData:BnGridWrapperEvent):void {
@@ -50,7 +51,7 @@ export class BnLayoutFooterDirective extends BnLayoutElementAnimateBaseDirective
   private __renderView(){
     if(!this.current) return;
     this.curVals = this.gridSvc.getWrapperCurVals(this.current);
-    this.animateConfig = this.gridSvc.getPreHeaderAnimationConfig(this.animateConfig, this.current, this.curVals,this.fullWidth, this.fullScreenState)
+    this.animateConfig = this.gridSvc.getPreHeaderAnimationConfig(this.current, this.curVals,this.fullWidth, this.fullScreenState)
     if(this.fullScreenEvent){ this.aniToggle = !this.fullScreenEvent; }
     this.renderView(this.aniToggle)
   }

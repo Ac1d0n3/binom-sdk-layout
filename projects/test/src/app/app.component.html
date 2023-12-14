@@ -25,19 +25,19 @@
       </mat-toolbar>
     </section>
 
-    <section bnLayoutSidebar sticky cdkScrollable [iconSidebarToggle]="toggleIconSidebar" iconSidebar [visible]="sidebarleft" class="sample-side" width="300">
-      <div>SIDEBAR</div>
+    <section bnLayoutSidebar sticky cdkScrollable [iconSidebarToggle]="toggleIconSidebar" shadow iconSidebar [visible]="sidebarleft" >
+      <div  class="sample-side-left">SIDEBAR</div>
     </section>
 
-    <section bnLayoutContent cdkScrollable>
+    <section bnLayoutContent cdkScrollable shadow>
       <router-outlet #outlet="outlet"></router-outlet>
     </section>
 
-    <section bnLayoutSidebar="right" [visible]="sidebarright" cdkScrollable class="sample-side">
-      <div>SIDEBAR</div>
+    <section bnLayoutSidebar="right" [visible]="sidebarright" cdkScrollable shadow>
+      <div  class="sample-side-right">SIDEBAR</div>
     </section>
 
-    <section bnLayoutFooter fullWidth [visible]="footer" style="background-color:olive">
+    <section bnLayoutFooter fullWidth [visible]="footer" shadow style="background-color:olive">
       FOOTER
     </section>
 

@@ -34,9 +34,9 @@ export class BnLayoutContentDirective extends BnLayoutElementBaseDirective {
   }
 
   protected override handleLayoutEvent(eventData:BnGridWrapperEvent):void {
-  
+    this.updateView();
     if(eventData.wrapper === this.belongsToWrapper || eventData.wrapper === 'all'){
-      this.updateView();
+     
     }
 
   }

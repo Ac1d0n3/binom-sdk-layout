@@ -1,6 +1,6 @@
 
 
-<section bnLayoutWrapper animated>
+<section bnLayoutWrapper="nested" animated>
 
     <section bnLayoutPreHeader [visible]="preheader" cdkScrollable >
         <h1>SUBPREHEADER</h1>
@@ -10,17 +10,15 @@
     <section bnLayoutHeader fullWidth sticky height="64" style="background-color: olive;">
         <mat-toolbar> SUB
         <button mat-button (click)="preheader = !preheader"> PreHeader</button>
-        
-        <button mat-button (click)="precontent = !precontent"> PreContent</button>
         <button mat-button (click)="sidebarleft = !sidebarleft"> sidebarleft</button>
         <button mat-button (click)="sidebarright = !sidebarright"> sidebarright</button>
         <button mat-button (click)="footer = !footer"> footer</button>
         </mat-toolbar>
     </section>
 
-    <section bnLayoutSidebar cdkScrollable  [visible]="sidebarleft" class="sample-side">
+    <section bnLayoutSidebar cdkScrollable  [visible]="sidebarleft" >
         
-        <div >
+        <div class="sample-side-left">
         SUBSIDEBAR
         </div>
 
@@ -29,12 +27,12 @@
     <section bnLayoutContent cdkScrollable >
 
        
-        <app-nested-nested></app-nested-nested>
+        <div style="height:900px"></div>
 
     </section>
 
-    <section  bnLayoutSidebar="right" [visible]="sidebarright" cdkScrollable class="sample-side">
-        <div >
+    <section  bnLayoutSidebar="right" [visible]="sidebarright" cdkScrollable >
+        <div class="sample-side-right">
         SUBSIDEBAR
         </div>
     </section>
