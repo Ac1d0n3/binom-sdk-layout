@@ -201,10 +201,8 @@ export class BnLayoutWrapperDirective {
 
   private __handleEvent(data: BnGridWrapperEvent) {
     this.fullScreenEvent = false;
-    //console.log(data)
     if(!this.current) return;
     if(data.wrapper){
-     
       this.__logMsg('debug', { function:'Wrapper Event for: ' +this.wrapperId, msg: 'source: ' +data.source + ' action: '+ data.action  } );
       if(JSON.stringify(data) !== JSON.stringify(this.lastevent)){
         this.lastevent = data;
@@ -223,18 +221,15 @@ export class BnLayoutWrapperDirective {
       }
     }
     this.updateView();
-  
   }
 
   private updateView(){
-    
     if(this.current && this.isInit){
       this.gridSvc.calcHeights(this.current);
       this.__toggleGridView();
       this.__toggleShadow(true);
       this.__updateHeight();
       this.firstEvent = false;
-      //this.renderUtil.setStyle('margin-top',this.offsetTop+'px')
     }
   }
 
@@ -254,26 +249,18 @@ export class BnLayoutWrapperDirective {
 
   private __gridView(gridSettings: BnGridCss) {
     this.__removeGridClasses();
-
     const fromColumns = '*';
     const toColumns = gridSettings.gridColumns;
-
     if(this.fullScreenEvent && !this.firstEvent && this.current?.parentId === '' && this.current.config.animated) {
       this.fullScreenEvent = false;
       this.animateGridColumns(fromColumns, toColumns);
-    console.log('????????')
     }
-    else
-      this.renderUtil.setStyle('grid-template-columns', toColumns);
-
+    else this.renderUtil.setStyle('grid-template-columns', toColumns);
     this.renderUtil.addClass('bnl-grid-' + gridSettings.deviceSize);
-   
     this.renderUtil.setStyle('grid-template-rows', gridSettings.gridRows);
     this.renderUtil.setStyle('grid-template-areas', gridSettings.gridAreas);
     this.fullScreenEvent = false;
   }
-
-  
 
   private __blockView() {
     this.__removeGridClasses();
@@ -288,7 +275,6 @@ export class BnLayoutWrapperDirective {
   private __toggleShadow(toggle:boolean){
     this.renderUtil.toggleShadow(this.shadow && toggle, this.shadowLevel);
   }
-
 
   private animateGridColumns(fromColumns: string, toColumns: string) {
     const metadata = [

@@ -27,7 +27,9 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
   private useScrollWrapper:string = 'bn-layout-app-wrapper';
   private scrollTop:number = 0;
   private scrollElOffset:number = 0;
-  private fixedChanged:boolean = false;
+  private sideBarVisibleLeftState:boolean|null = false;
+  private sideBarVisibleRightState:boolean|null = false;
+  private lastVal:string|number = '';
 
   ngOnInit():void{
     this.onInit();
@@ -39,111 +41,54 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
     this.__renderView();
   }
 
-  private __viewUpdate(){
+  private __viewUpdate():void{
     if(!this.current) return;
     this.curVals = this.gridSvc.getWrapperCurVals(this.current);
     this.scrollElOffset = 0;
     this.scrollElOffset = (this.gridSvc.getElementOffset(this.current.wrapperId)) - (this.current.level === 0 ? 0:this.height);
-    
     if(this.sticky) this.__checkIsFixed();
-    if(this.transparentAos) {
-      this.renderUtil.toggleOnOff(this.scrollTop ===0 && this.gridSvc.isVisble(this.current,'preheader'), 'bnl-transparent-header-on','bnl-transparent-header-off');
-    }
+    if(this.transparentAos) {this.renderUtil.toggleOnOff(this.scrollTop ===0 && this.gridSvc.isVisble(this.current,'preheader'), 'bnl-transparent-header-on','bnl-transparent-header-off');}
   }
   
-  private __renderView(){
+  private __renderView():void{
     if(!this.current) return;
     if(this.fullScreenEvent){ this.aniToggle = !this.fullScreenEvent; }
     else if(this.iconsSidebarEvent){ this.aniToggle = !this.iconsSidebarState; }
     else this.aniToggle = !this.visible;
 
-
     if(this.current.level === 0) {
-     
       this.animateConfig = {...this.gridSvc.getHeaderAnimationConfig(this.current, this.curVals,this.fullWidth, this.isFixed, this.fullScreenState)}
       this.renderView(this.aniToggle);
-    } else {
-      console.log('isChild')
-     
+    } else { // CHILD HEADERS
+
       if(this.fullScreenEvent){ this.aniToggle = !this.fullScreenEvent; }
       else if(this.iconsSidebarEvent){ this.aniToggle = !this.iconsSidebarState; }
       else this.aniToggle = !this.sideBarVisibleLeftState;
-      const space = this.fullScreenState ? 0: this.curVals.centerSpaceWidth;
-      //this.animateConfig = this.gridSvc.getSidebarAnimateConfig(this.fixedChanged,this.visible,this.visibleChanged,this.iconsSidebarEvent,this.width,this.isFixed,this.iconsSidebarState,this.fullScreenEvent,this.current,this.position,this.curVals);
-      this.animateConfig.time = '400ms'
+     
       if(this.sticky || this.fullWidth){
-
-        if((this.fullWidth) ){
-          this.animateConfig.width.to = '100vw';
-          this.animateConfig.width.from = '100vw'
-        
+        this.animateConfig = this.gridSvc.getChildHeaderAnimationConfig(this.current, this.curVals, this.fullWidth, this.isFixed, this.fullScreenState, this.iconsSidebarEvent, this.iconsSidebarState, this.visibleChanged, this.sideBarVisibleLeftState, this.fixedChanged, this.fullScreenEvent, this.lastVal);
+        if(this.fullWidth ){
           if(!this.isFixed) {
             this.renderUtil.setStyle('position','absolute');
             this.renderUtil.removeStyle('top');
             this.renderUtil.removeStyle('grid-area');
-
-            this.animateConfig.left.to = '-' + space + 'px';
-            this.animateConfig.left.from = this.animateConfig.left.to;
           }
           else { 
             this.renderUtil.setStyle('top', this.current.heights.header + 'px');
             this.renderUtil.removeStyle('position'); 
             this.renderUtil.setStyle('grid-area','unset');
-
-            this.animateConfig.left.to = '0px';
-            this.animateConfig.left.from = this.animateConfig.left.to;
           }
+        } else { this.renderUtil.removeStyle('position'); }
 
-
-        } else {
-          this.renderUtil.removeStyle('position')
-        }
-
-        if(this.visibleChanged){
-          if(this.fullWidth){
-            if(!this.isFixed){
-              if(this.sideBarVisibleLeftState){ this.animateConfig.left.from =  '-' + space + 'px'; } 
-              else { this.animateConfig.left.from =  this.lastVal; }
-              this.animateConfig.left.to = this.animateConfig.left.to = '-' + (space + this.curVals.sidebarWidths)+ 'px';
-            }
-          }
-          console.log('left',this.sideBarVisibleLeftState,'right', this.sideBarVisibleRightState,this.animateConfig.left.from,'>', this.animateConfig.left.to )
-          console.log('sidebar VisibleChanged')
-        }
-        if(this.fixedChanged){
-         if(!this._isFixed){
-          this.animateConfig.left.from = this.animateConfig.left.to = '-' + (space + this.curVals.sidebarWidths)+ 'px';
-          this.animateConfig.left.to = this.animateConfig.left.to = '-' + (space + this.curVals.sidebarWidths)+ 'px';
-         }
-        }
-        else if( this.iconsSidebarEvent){
-          if(!this.isFixed && this.sideBarVisibleLeftState){
-          
-            this.animateConfig.left.from = '-' + (space + (this.iconsSidebarState ? this.configSvc.iconSidebarWidth:200))+ 'px';
-            this.animateConfig.left.to = '-' + (space+ this.curVals.sidebarWidths)+ 'px';
-          }
-         
-          console.log('iconSidebarEvent')
-        } 
-        else if (this.fullScreenEvent){
-          console.log('fullScreenEvent')
-        }
-
-        console.log(this.belongsToWrapper,this.elTag,  {...this.animateConfig},this.aniToggle);
         this.renderView(this.aniToggle);
-        
         this.lastVal =  this.animateConfig.left.to;
-      
       }
-     
     }
    
-    this.fixedChanged = false;
-    this.iconsSidebarEvent = false;
-    this.fullScreenEvent = false;
-    this.visibleChanged = false;
+    this.__resetEventVars();
+   
   }
-  lastVal:string|number = ''
+
   /* ************************************************************************ 
       EVENT Handling
   */ 
@@ -154,13 +99,11 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
     }
   }
 
-  sideBarVisibleLeftState:boolean|null = false;
-  sideBarVisibleRightState:boolean|null = false;
+
   protected override handleLayoutEvent(eventData:BnGridWrapperEvent):void {
     if(!this.current) return;
 
     this.__viewUpdate(); 
-
     if(eventData.action === 'fullscreen'){ 
       this.fullScreenEvent = true; 
       this.fullScreenState = eventData.state? eventData.state : false;
@@ -178,7 +121,6 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
       }
     }
     
-   
     if(eventData.action === 'visible' && eventData.wrapper !== this.belongsToWrapper  && this.current.level !== 0 && (eventData.source === 'sidebarleft' || eventData.source === 'sidebarright' )){
       this.visibleChanged = true;
       if(eventData.source === 'sidebarleft') this.sideBarVisibleLeftState = eventData.state
@@ -188,7 +130,7 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
     }
   }
 
-  private __initHeader(){
+  private __initHeader():void{
     if(!this.current) return
 
     if(this.sticky || this.transparentAos){
@@ -212,7 +154,7 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
     this.__renderView();
   }
 
-  private __checkIsFixed(){
+  private __checkIsFixed():void{
     const cur = this.scrollTop >= this.scrollElOffset ? true: false;
     if(cur !== this.isFixed){
       this.isFixed = cur;

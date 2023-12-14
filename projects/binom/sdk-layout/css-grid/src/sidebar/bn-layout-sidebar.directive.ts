@@ -20,7 +20,7 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
   private scrollElOffset:number = 0;
   private __stickyHelper!:HTMLElement;
   private helperPlayer: AnimationPlayer | null = null;
-  private fixedChanged:boolean = false;
+
   
   @Input() togglePosition:'middle'|'top'|'bootom' = 'middle';
 
@@ -105,14 +105,8 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
       this.renderUtil.removeStyle('top');
     }
     this.renderViewHelper(this.aniToggle);
-   // console.log('-->',this.animateConfig,this.aniToggle, this.elTag);
-
     this.renderView(this.aniToggle);
-   
-    this.fixedChanged = false;
-    this.iconsSidebarEvent = false;
-    this.fullScreenEvent = false;
-    this.visibleChanged = false;
+    this.__resetEventVars();
   }
 
   protected override toggleVisible(){ this.__renderView() }
@@ -188,7 +182,6 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
 
   protected toogleSticky(toggle:boolean){
     this.__createStickyHelper();
-
     if(toggle ){
       this.renderUtil.addClass('fixed');
       this.renderer.setStyle( this.__stickyHelper ,'grid-area','sidebar'+this.position);
@@ -202,7 +195,6 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
 
   renderViewHelper(toggle: boolean){
     if(!this.current || !this.__stickyHelper) return;
-    //console.log('Render Helper',this.animateConfig)
     this.current.config.animated? this.animateItHelper(toggle) : this.renderHardHelper();
   }
 

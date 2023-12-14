@@ -47,6 +47,7 @@ export abstract class BnLayoutElementAnimateBaseDirective {
   protected animateConfig:BnGridAnimateObject = this.gridSvc.getDefaultAnimationConfig();
   protected aniToggle:boolean = false;
 
+  protected fixedChanged:boolean = false;
   protected fullScreenEvent:boolean = false;
   protected iconsSidebarEvent:boolean = false;
   protected iconsSidebarState:boolean = false;
@@ -213,6 +214,13 @@ export abstract class BnLayoutElementAnimateBaseDirective {
   protected renderView(toggle: boolean){
     if(!this.current) return;
     this.current.config.animated && this.isInit? this.animateIt(toggle) : this.renderHard();
+  }
+
+  protected __resetEventVars(){
+    this.fixedChanged = false;
+    this.iconsSidebarEvent = false;
+    this.fullScreenEvent = false;
+    this.visibleChanged = false;
   }
 
 }
