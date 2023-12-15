@@ -4,7 +4,7 @@
 @import '../../../dist/binom/sdk-layout/styles/layout.scss';
 
 .regular-border{
-    border-color: dimgray !important;
+    border-color: olive !important;
   }
 
 
@@ -62,4 +62,8 @@
   border-left: 1px solid darkslategray;
   width: 100%;
   height: 100%;
+}
+
+.preheader{
+  height: fit-content;
 }

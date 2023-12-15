@@ -13,6 +13,7 @@ import { BnLayoutAppWrapperDirective } from '../../../binom/sdk-layout/css-grid'
 import { BnCssGridModule } from '@binom/sdk-layout/css-grid';
 import { BnLoggerService } from '@binom/sdk-core/logger';
 import { BnLayoutSwitchMenuComponent } from '@binom/sdk-layout/layout-switch';
+import { BnSplitContentComponent, BnSplitContentItemDirective } from '@binom/sdk-layout/split-content';
 
 @Component({
   selector: 'app-root',
@@ -20,7 +21,7 @@ import { BnLayoutSwitchMenuComponent } from '@binom/sdk-layout/layout-switch';
   imports: [
     CommonModule, RouterOutlet, RouterModule, MatToolbarModule, BnAnimateOnScrollComponent,BnAosViewPortDirective,
     BnTranslateSwitchMenuComponent, TranslateModule, MatSidenavModule, MatButtonModule, MatExpansionModule, BnLayoutSwitchMenuComponent,
-    CdkScrollableModule, BnCssGridModule
+    CdkScrollableModule, BnCssGridModule, BnSplitContentComponent, BnSplitContentItemDirective
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

@@ -1,1 +1,16 @@
-<p>bn-split-content works!</p>
+
+
+
+@for(item of items; track $index;){
+
+    @if($index > 0){
+    <div  [class]="'bn-split-content-'+direction">
+        <div><div class="bn-split-content-line regular-border  bn-split-content-border">&nbsp;</div></div>
+        <div class="bn-split-content-label bn-split-content-label-{{direction}} regular-border bn-split-content-border">{{label}}</div>
+        <div><div class="bn-split-content-line regular-border  bn-split-content-border">&nbsp;</div></div>
+    </div>
+    }
+    <ng-template [ngTemplateOutlet]="item.template"></ng-template>
+}
+
+   

@@ -39,13 +39,14 @@ export class BnLayoutFooterDirective extends BnLayoutElementAnimateBaseDirective
     if(eventData.action === 'fullscreen'){ 
       this.fullScreenEvent = true; 
       this.fullScreenState = eventData.state? eventData.state : false;
-      this.__renderView();
+      
     }
     if(eventData.source && (eventData.wrapper === this.belongsToWrapper || this.belongsToWrapper === '' )){
       if(eventData.action === 'visible' && eventData.source === this.elTag && eventData.wrapper === this.belongsToWrapper && eventData.outsideEvent){
         this.updateVisible(eventData);
       }
     }
+    this.__renderView();
   }
 
   private __renderView(){
