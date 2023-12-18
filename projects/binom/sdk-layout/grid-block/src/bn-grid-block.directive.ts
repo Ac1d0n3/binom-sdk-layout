@@ -1,6 +1,7 @@
 import { Directive, ElementRef, Input, NgZone, Renderer2, inject } from '@angular/core';
 import { BnLayoutService } from '@binom/sdk-layout/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
+import { BnGridInfo, BnGridWrapperEvent, BnLayoutGridService } from '@binom/sdk-layout/css-grid';
 
 @Directive({
   selector: '[bnGridBlock]',
@@ -14,6 +15,7 @@ export class BnGridBlockDirective {
   private layoutSvc = inject(BnLayoutService);
   private renderer = inject(Renderer2);
   private el = inject(ElementRef);
+  private gridSvc = inject(BnLayoutGridService);
 
   @Input() height:number = 0;
   @Input() width:string = 'auto';
@@ -52,7 +54,10 @@ export class BnGridBlockDirective {
     if(this.height > 0) this.gridRows = this.height + 'px'
     this.updateView();
     this.subscriptions.push(sub1);
+
+    this.subscriptions.push(this.gridSvc.wrapperEvent$.subscribe((data:BnGridWrapperEvent) => this.gridChange(data)));
   }
+
 
   calc(value:number){
     this.gridCols = '';
@@ -65,8 +70,16 @@ export class BnGridBlockDirective {
     }
   
     for(let i = 0; i < value; i++){ this.gridCols += ' 1fr'; }
+  
   }
 
+  private gridChange(data:BnGridWrapperEvent){
+    setTimeout(() => {
+      this.calc(this.gridColsChache);
+    this.updateView();
+    },100);
+    
+  }
 
   updateView(){
       this.renderer.addClass(this.el.nativeElement, 'bn-grid-block')

@@ -66,7 +66,7 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
       else this.aniToggle = !this.sideBarVisibleLeftState;
      
       if(this.sticky || this.fullWidth){
-        this.animateConfig = this.gridSvc.getChildHeaderAnimationConfig(this.current, this.curVals, this.fullWidth, this.isFixed, this.fullScreenState, this.iconsSidebarEvent, this.iconsSidebarState, this.visibleChanged, this.sideBarVisibleLeftState, this.fixedChanged, this.fullScreenEvent, this.lastVal);
+        this.animateConfig = this.gridSvc.getChildHeaderAnimationConfig(this.current, this.curVals, this.fullWidth, this.isFixed, this.fullScreenState, this.iconsSidebarEvent, this.iconsSidebarState, this.visibleChanged, this.sideBarVisibleLeftState, this.fixedChanged, this.fullScreenEvent, this.lastVal, this.resizeEvent);
         if(this.fullWidth ){
           if(!this.isFixed) {
             this.renderUtil.setStyle('position','absolute');
@@ -79,7 +79,7 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
             this.renderUtil.setStyle('grid-area','unset');
           }
         } else { this.renderUtil.removeStyle('position'); }
-
+       // console.log(this.belongsToWrapper,this.elTag,this.animateConfig,this.elTag,this.visibleChanged)
         this.renderView(this.aniToggle);
         this.lastVal =  this.animateConfig.left.to;
       }
@@ -125,9 +125,15 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
       this.visibleChanged = true;
       if(eventData.source === 'sidebarleft') this.sideBarVisibleLeftState = eventData.state
       if(eventData.source === 'sidebarright') this.sideBarVisibleRightState = eventData.state
+      this.__renderView();
      
+    }
+
+    if(eventData.source === 'appwrapper' && eventData.action === 'resize'){ 
+      this.resizeEvent = true;
       this.__renderView();
     }
+   
   }
 
   private __initHeader():void{

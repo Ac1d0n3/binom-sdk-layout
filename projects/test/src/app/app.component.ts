@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterModule, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterModule, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { BnTranslateSwitchMenuComponent } from '@binom/sdk-core/translate';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -38,7 +38,7 @@ export class AppComponent {
     this.logger.logLevel = -1;
 
   }
-
+  router = inject(Router);
 
   private logger = inject(BnLoggerService)
 

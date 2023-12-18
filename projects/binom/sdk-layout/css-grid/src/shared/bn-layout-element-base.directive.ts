@@ -43,7 +43,10 @@ export abstract class BnLayoutElementBaseDirective {
   @Input() set shadowLevel(val:NumberInput){ this._shadowLevel= coerceNumberProperty(val); }
   private _shadow: boolean = false;
   get shadow(): boolean { return this._shadow; }
-  @Input() set shadow(val: BooleanInput) { this._shadow = coerceBooleanProperty(val); }
+  @Input() set shadow(val: BooleanInput) { 
+    this._shadow = coerceBooleanProperty(val); 
+    this.renderUtil.toggleShadow(this.shadow,this.shadowLevel);
+  }
 
   //-------------------------------------------------------------------------------------
   // Visible
@@ -83,22 +86,13 @@ export abstract class BnLayoutElementBaseDirective {
     this.renderUtil.toggleVisible(this.visible); 
   }
 
-
   //-------------------------------------------------------------------------------------
   // ON INIT BASE Functions
   protected onInit(withEvent:boolean=true):void {
-   
     if(withEvent) this.__initGridEvent();
     this.__checkBelongsTo();
     if(!this.current || !this.elTag) return;
-
     this.renderUtil.toggleShadow(this.shadow,this.shadowLevel);
-
-    if(this.current.has[this.elTag as keyof BnGridElements]){
-      this.__logMsg('warn',  { function: 'Warning', msg: 'Dublicate Element for: ' + this.elTag });
-      this.renderUtil.setStyle('display', 'none', true);
-    }
-
     this.configSvc.setHas(this.current, this.elTag);
   }
 
@@ -115,7 +109,6 @@ export abstract class BnLayoutElementBaseDirective {
         this.configSvc.setDefaultVisible(this.current,this.elTag,this.visible);
       }
      
-
     } else {
       this.__logMsg('warn',  { function: 'Warning', msg: 'no Wrapper found for: ' + this.elTag });
       this.renderUtil.setBorder('red', '2px');
@@ -129,28 +122,7 @@ export abstract class BnLayoutElementBaseDirective {
     )
   }
 
-  protected handleLayoutEvent(eventData:BnGridWrapperEvent):void {
-    if(!this.current) return;
-
-    if(eventData.source && (eventData.wrapper === this.belongsToWrapper || this.belongsToWrapper === '' )){
-      
-      if(eventData.action === 'visible' && eventData.source === this.elTag && eventData.wrapper === this.belongsToWrapper && eventData.outsideEvent){
-        console.log('-->should visible', this.elTag, this.belongsToWrapper)
-        this.updateVisible(eventData);
-      }
-      
-      if(eventData.action === 'ngAfterViewInit' && eventData.level > this.current.level){
-        console.log('--> should update heights if calcHeights === true', this.elTag, this.belongsToWrapper);
-      }
-     
-    }
-
-    if(eventData.wrapper === 'all' && eventData.parent === 'all' && eventData.action === 'resize'){
-      console.log('--> should update heights if calcHeights === true', this.elTag, this.belongsToWrapper);
-      console.log('--> should update widths');
-    }
-   
-  }
+  protected handleLayoutEvent(eventData:BnGridWrapperEvent):void {}
 
   //-------------------------------------------------------------------------------------
   // After View Init (INIT)

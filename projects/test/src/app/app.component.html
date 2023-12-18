@@ -1,36 +1,33 @@
 
 <section bnLayoutAppWrapper cdkScrollable >
 
-  <section bnLayoutWrapper="root" maxWidth="1400" centered  [calcHeights]="false" [grid]="true" animated>
+  <section bnLayoutWrapper="root" maxWidth="1400" centered  [calcHeights]="false" [grid]="true" animated  cdkScrollable>
 
     <section bnLayoutPreHeader fullWidth   [visible]="preheader" cdkScrollable class="preheader">
       <h1>PREHEADER</h1>
 
       <bn-split-content label="or">
         
-       
         <div *bnSplitContentItem class="split-item"> Content A </div>
-
         <div *bnSplitContentItem  class="split-item"> Content B</div>
-
         <div *bnSplitContentItem  class="split-item"> Content C</div>
-     
         
       </bn-split-content>
 
     </section>
 
     <section bnLayoutHeader height="64" fullWidthContent="none"  fullWidth  shadow sticky class="mainHeader " >
-      <mat-toolbar color="accent" class="bn-transparent">
+      <mat-toolbar color="accent" >
         <span bnAos="fadeIn">
         <button mat-button (click)="preheader = !preheader"> PreHeader</button>
-        <button mat-button (click)="precontent = !precontent"> PreContent</button>
-        <button mat-button (click)="sidebarleft = !sidebarleft"> sidebarleft</button>
-        <button mat-button (click)="toggleIconSidebar = !toggleIconSidebar"> toggle IconSidebar</button>
-        <button mat-button (click)="sidebarright = !sidebarright"> sidebarright</button>
+   
+        <button mat-button (click)="sidebarleft = !sidebarleft"> left</button>
+        <button mat-button (click)="toggleIconSidebar = !toggleIconSidebar"> iconSidebar</button>
+        <button mat-button (click)="sidebarright = !sidebarright"> right</button>
         <button mat-button (click)="footer = !footer"> footer</button>
         <button mat-button [routerLink]="['./home']"> home</button>
         <button mat-button [routerLink]="['./nested']"> nested</button>
+        <button mat-button [routerLink]="['./inner']"> nested fixed</button>
       </span>
       <span class="toolbar-spacer"></span>
       <bn-layout-switch-menu allowGridSettings allowVisible ></bn-layout-switch-menu>
@@ -41,7 +38,7 @@
       <div  class="sample-side-left">SIDEBAR</div>
     </section>
 
-    <section bnLayoutContent cdkScrollable shadow>
+    <section bnLayoutContent cdkScrollable [shadow]="router.url !== '/inner'">
       <router-outlet #outlet="outlet"></router-outlet>
     </section>
 

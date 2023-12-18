@@ -14,4 +14,8 @@ export const routes: Routes = [
         path: 'nested',
         loadComponent:  () => import('./nested-grid/nested-grid.component').then(m => m.NestedGridComponent)
     },
+    {
+        path: 'inner',
+        loadComponent:  () => import('./inner/inner.component').then(m => m.InnerComponent)
+    },
 ];

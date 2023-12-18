@@ -1,0 +1,17 @@
+
+<div bnLayoutWrapper="profile" offsetTop="15" offsetBottom="15" noFullScreen centered maxWidth="1200" parentId="root" [grid]="true" noInherhitGrid noInheritCalcHeights calcHeights animated>
+  
+    <mat-toolbar style="z-index:400;"  bnLayoutHeader shadow height="40" class="profile-header content-bg" [class.profile-content-corner-top]="layoutInfo.device !== 'phone' && layoutInfo.window.width >= 1200" >
+      
+    </mat-toolbar>
+  
+    <div bnLayoutSidebar="right" shadow inHeader iconSidebar style="z-index:400" [class.content-bg]="layoutInfo.device === 'phone' || layoutInfo.window.width < 1200">
+     
+    </div>
+   
+  
+    <div bnLayoutContent  style="z-index:500" cdkScrollable class="content-bg profile-content" shadow [class.profile-content-corner-bottom]="layoutInfo.device !== 'phone' && layoutInfo.window.width >= 1200">
+     COntent
+    </div>
+  
+  </div>

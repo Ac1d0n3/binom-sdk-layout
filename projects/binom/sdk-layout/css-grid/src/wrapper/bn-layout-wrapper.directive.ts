@@ -247,19 +247,23 @@ export class BnLayoutWrapperDirective {
     }
   }
 
+  curCol:string = '*'
   private __gridView(gridSettings: BnGridCss) {
+    if(!this.current) return;
     this.__removeGridClasses();
-    const fromColumns = '*';
+    const fromColumns = this.curCol;
     const toColumns = gridSettings.gridColumns;
-    if(this.fullScreenEvent && !this.firstEvent && this.current?.parentId === '' && this.current.config.animated) {
+    if(this.fullScreenEvent && !this.firstEvent && this.current.config.animated) {
       this.fullScreenEvent = false;
       this.animateGridColumns(fromColumns, toColumns);
+     console.log(fromColumns,toColumns)
     }
     else this.renderUtil.setStyle('grid-template-columns', toColumns);
     this.renderUtil.addClass('bnl-grid-' + gridSettings.deviceSize);
     this.renderUtil.setStyle('grid-template-rows', gridSettings.gridRows);
     this.renderUtil.setStyle('grid-template-areas', gridSettings.gridAreas);
     this.fullScreenEvent = false;
+    this.curCol = toColumns
   }
 
   private __blockView() {

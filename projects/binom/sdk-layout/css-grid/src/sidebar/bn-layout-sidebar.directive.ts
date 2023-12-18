@@ -20,9 +20,7 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
   private scrollElOffset:number = 0;
   private __stickyHelper!:HTMLElement;
   private helperPlayer: AnimationPlayer | null = null;
-
-  
-  @Input() togglePosition:'middle'|'top'|'bootom' = 'middle';
+ 
 
   private _width:number = 200;
   get width():number{ return this._width; }
@@ -48,7 +46,9 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
       this.gridSvc.toggleIconSidebar(this.current, this.position, this.width, this.iconSidebarToggle);
     }
   }
+  
 
+  @Input() togglePosition:'middle'|'top'|'bootom' = 'middle';
   private _createToggle:boolean = false; get createToggle():boolean{ return this._createToggle; }
   @Input() set createToggle(val:BooleanInput){ this._createToggle = coerceBooleanProperty(val); }
 
@@ -96,14 +96,16 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
     else if(this.iconsSidebarEvent){ this.aniToggle = !this.iconsSidebarState; }
     else this.aniToggle = !this.visible;
 
-    this.animateConfig = this.gridSvc.getSidebarAnimateConfig(this.fixedChanged,this.visible,this.visibleChanged,this.iconsSidebarEvent,this.width,this.isFixed,this.iconsSidebarState,this.fullScreenEvent,this.current,this.position,this.curVals);
+    this.animateConfig = this.gridSvc.getSidebarAnimateConfig(this.fixedChanged,this.visible,this.visibleChanged,this.iconsSidebarEvent,this.width,this.isFixed,this.iconsSidebarState,this.fullScreenEvent,this.current,this.position,this.curVals, this.resizeEvent);
    
     if(this.isFixed){
       this.renderUtil.setStyle('top', (this.current.elConfig.sidebars[this.position as keyof BnGridSidebars].inHeader? 0 : this.current.heights.header) + 'px');
       this.renderUtil.setHeight(this.current.heights.wrapper - this.current.heights.header  );
     } else {
       this.renderUtil.removeStyle('top');
+      this.renderUtil.removeStyle('height');
     }
+   
     this.renderViewHelper(this.aniToggle);
     this.renderView(this.aniToggle);
     this.__resetEventVars();
@@ -139,6 +141,11 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
         this.updateVisible(eventData);
       }
     }
+    if(eventData.source === 'appwrapper' && eventData.action === 'resize'){ 
+      this.resizeEvent = true;
+      this.__renderView();
+    }
+    
   }
 
   protected animateItHelper(toggle: boolean) {

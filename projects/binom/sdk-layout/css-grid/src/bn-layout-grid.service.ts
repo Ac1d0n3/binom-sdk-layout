@@ -199,7 +199,6 @@ export class BnLayoutGridService {
     let gridRows = '';
     if(gridWrapper.config.offsetTop !== 0 && !this.layoutSvc.isPhone()){ gridRows = this.__createStr(gridRows, gridWrapper.config.offsetTop, true); }
     if(this.isVisble(gridWrapper,'preheader')){ gridRows = this.__createStr(gridRows, gridWrapper.heights.preheader, true); }
-  
     if(this.isVisble(gridWrapper,'header')){ gridRows = this.__createStr(gridRows, gridWrapper.heights.header, true); }
     if(this.isVisble(gridWrapper,'precontent')){ gridRows = this.__createStr(gridRows, gridWrapper.heights.precontent, true); }
     if(this.isVisble(gridWrapper,'content')){ gridRows = this.__createStr(gridRows, gridWrapper.heights.content, false); }
@@ -210,13 +209,17 @@ export class BnLayoutGridService {
 
 
   private __genGridColumns(gridWrapper: BnGridWrapper):string{
+
+    const parent = this.getFixedParentWidth(gridWrapper);
+    const useWidth = this.useWidth(gridWrapper);
+    const refWidth = (gridWrapper.parentId ==='' || this.gridInfo.fullscreen? this.layoutSvc.layoutInfo.window.width:parent);
     let gridColumns = ''; let addNum = 0; let add = '0px'; 
-    let useWidth = this.useWidth(gridWrapper);
-    if(this.gridInfo.fullscreen && ! gridWrapper.config.noFullScreen  || this.layoutSvc.isPhone() || window.innerWidth < useWidth) {
+ 
+    if(this.gridInfo.fullscreen && !gridWrapper.config.noFullScreen  || this.layoutSvc.isPhone() || window.innerWidth < useWidth) {
       add = '0px';
     } else {
-      if(this.layoutSvc.layoutInfo.window.width > useWidth) {
-        addNum = (this.layoutSvc.layoutInfo.window.width - useWidth) 
+      if(refWidth > useWidth) {
+        addNum = (refWidth - useWidth) 
         if(gridWrapper.config.centered) add = addNum / 2 + 'px';
         else if(useWidth > 0 ) add = addNum + 'px'
       }
@@ -289,7 +292,7 @@ export class BnLayoutGridService {
     return gridAreas
   }
 
-  private __createStr(str:string, height:number, toggle:boolean = false, add:string = 'auto' ):string {
+  private __createStr(str:string, height:number, toggle:boolean = false, add:string = '1fr' ):string {
     if(str !== '' ) str += ' ';
     if(height === 0 || !toggle ) str += add;
     else { str += height + 'px'; }
@@ -346,7 +349,7 @@ export class BnLayoutGridService {
   }
 
   getFixedParentWidth(gridWrapper: BnGridWrapper):number{
-    let vals = this.getParentWrapperSettings(gridWrapper.wrapperId);
+    let vals = this.getParentWrapperSettings(gridWrapper.parentId);
     if(vals){ return this.getStaticWidth( vals.width, vals.maxWidth,0, this.layoutSvc.layoutInfo.window.width );} 
     return 0
   }
@@ -433,10 +436,14 @@ export class BnLayoutGridService {
 
   getWrapperCurVals(current:BnGridWrapper):BnWrapperCurVals {
     const selfRef = this.getFixedStaticWidth(current);
-    const parent = this.getFixedParentWidth(current)
-    const useForSelf =  (selfRef > parent? parent:selfRef);
+    const parent = this.getFixedParentWidth(current);
     const useWidth = this.useWidth(current);
+    const space = ( (current.parentId ===''?this.layoutSvc.layoutInfo.window.width:parent) - useWidth) / 2;
+    const useForSelf =  (selfRef > parent? parent:selfRef);
+   
     const useCenterSpace = current.config.centered && useWidth > 0;
+   
+   // if(current.parentId !=='')console.log(current.wrapperId, useWidth,space, useWidth,parent)
     return {
       parentWidth: parent,
       staticWidth: useForSelf,
@@ -444,7 +451,7 @@ export class BnLayoutGridService {
       useCenterSpace:useCenterSpace,
       hasParent: current.parentId !== '',
       sidebarWidths: this.getSidebarsWidths(current.wrapperId),
-      centerSpaceWidth: (this.layoutSvc.layoutInfo.window.width - useForSelf) / 2 ,
+      centerSpaceWidth: space > 0 ? space:0 ,
       fullSize: window.innerWidth,
       fullScreen: this.isFullscreen(current) || (current.config.centered && this.layoutSvc.layoutInfo.window.width < current.config.maxWidth) ,
       calcHeights:this.checkCalcHeights(current)
@@ -643,7 +650,7 @@ export class BnLayoutGridService {
    }
 
    lastFrom:number = 0;
-   getChildHeaderAnimationConfig(current:BnGridWrapper, curVals:BnWrapperCurVals, fullWidth:boolean, isFixed:boolean, fullScreenState:boolean, iconsSidebarEvent:boolean,  iconsSidebarState:boolean,visibleChanged:boolean,sideBarVisibleLeftState:boolean|null,fixedChanged:boolean,fullScreenEvent:boolean, lastVal:string|number):BnGridAnimateObject{
+   getChildHeaderAnimationConfig(current:BnGridWrapper, curVals:BnWrapperCurVals, fullWidth:boolean, isFixed:boolean, fullScreenState:boolean, iconsSidebarEvent:boolean,  iconsSidebarState:boolean,visibleChanged:boolean,sideBarVisibleLeftState:boolean|null,fixedChanged:boolean,fullScreenEvent:boolean, lastVal:string|number, resizeEvent:boolean):BnGridAnimateObject{
     let animateConfig = this.getDefaultAnimationConfig(); 
     const space = fullScreenState ? 0: curVals.centerSpaceWidth;
     animateConfig.time = '400ms'
@@ -670,14 +677,14 @@ export class BnLayoutGridService {
         }
       }
     }
-    if(fixedChanged){
-    if(!isFixed){
-      animateConfig.left.from = animateConfig.left.to = '-' + (space + curVals.sidebarWidths)+ 'px';
-      animateConfig.left.to = animateConfig.left.to = '-' + (space + curVals.sidebarWidths)+ 'px';
-    }
+    else if(fixedChanged){
+      if(!isFixed){
+        animateConfig.left.from = animateConfig.left.to = '-' + (space + curVals.sidebarWidths)+ 'px';
+        animateConfig.left.to = animateConfig.left.to = '-' + (space + curVals.sidebarWidths)+ 'px';
+      }
     }
     else if( iconsSidebarEvent || fullScreenEvent){
-      if(!isFixed && sideBarVisibleLeftState){
+      if(!isFixed ){
         animateConfig.left.from = '-' + (space + (iconsSidebarState ? this.configSvc.iconSidebarWidth:200))+ 'px';
         animateConfig.left.to = '-' + (space+ curVals.sidebarWidths)+ 'px';
       }
@@ -689,45 +696,56 @@ export class BnLayoutGridService {
         animateConfig.padding.to = '0px';
       }
     }
-    
+
     return animateConfig
   
   }
 
-  getSidebarAnimateConfig(fixedChanged:boolean,visible:boolean,visibleChanged:boolean,iconsSidebarEvent:boolean,width:number,isFixed:boolean,iconsSidebarState:boolean,fullScreenEvent:boolean,current:BnGridWrapper,position:'left'|'right',curVals:BnWrapperCurVals){
+  getSidebarAnimateConfig(fixedChanged:boolean,visible:boolean,visibleChanged:boolean,iconsSidebarEvent:boolean,width:number,isFixed:boolean,iconsSidebarState:boolean,fullScreenEvent:boolean,current:BnGridWrapper,position:'left'|'right',curVals:BnWrapperCurVals, resizeEvent:boolean){
   let animateConfig = this.getDefaultAnimationConfig(); 
    animateConfig.time = '400ms'
-    if(!fixedChanged){
-      if(visibleChanged){ animateConfig.left.from =  animateConfig.left.to; }
-      if(visible){
-        animateConfig.width.from =  '0px'; 
-        animateConfig.width.to = current.elConfig.sidebars[position as keyof BnGridSidebars].width + 'px';
-      } else {
-        animateConfig.width.from = (visibleChanged ? current.elConfig.sidebars[position as keyof BnGridSidebars].width : 0) + 'px'; 
-        animateConfig.width.to =  '0px';
-      }
-      if( iconsSidebarEvent && visible){
-        animateConfig.left.from =  animateConfig.left.to 
-        animateConfig.width.from = !iconsSidebarState? width: this.configSvc.iconSidebarWidth+ 'px';
-        animateConfig.width.to =   current.elConfig.sidebars[position as keyof BnGridSidebars].width+ 'px';
+   if(!resizeEvent){ 
+   if(!fixedChanged){
+   
+        if(visibleChanged){ animateConfig.left.from =  animateConfig.left.to; }
+        if(visible){
+          animateConfig.width.from = !visibleChanged? current.elConfig.sidebars[position as keyof BnGridSidebars].width + 'px':  '0px'; 
+          animateConfig.width.to = current.elConfig.sidebars[position as keyof BnGridSidebars].width + 'px';
+        } else {
+          animateConfig.width.from = (visibleChanged ? current.elConfig.sidebars[position as keyof BnGridSidebars].width : 0) + 'px'; 
+          animateConfig.width.to =  '0px';
+        }
+        if( iconsSidebarEvent && visible){
+          animateConfig.left.from =  animateConfig.left.to 
+          animateConfig.width.from = !iconsSidebarState? width: this.configSvc.iconSidebarWidth+ 'px';
+          animateConfig.width.to =   current.elConfig.sidebars[position as keyof BnGridSidebars].width+ 'px';
+        } 
+        else if (fullScreenEvent){
+          animateConfig.width.from = animateConfig.width.to
+          animateConfig.left.from = !curVals.fullScreen ||!isFixed ? '0px' : curVals.centerSpaceWidth + 'px';
+          animateConfig.left.to =  curVals.fullScreen || !isFixed ? '0px' : curVals.centerSpaceWidth + 'px';
+          animateConfig.time = '300ms'
+        }
       } 
-      else if (fullScreenEvent){
+      else {
         animateConfig.width.from = animateConfig.width.to
-        animateConfig.left.from = !curVals.fullScreen ||!isFixed ? '0px' : curVals.centerSpaceWidth + 'px';
-        animateConfig.left.to =  curVals.fullScreen || !isFixed ? '0px' : curVals.centerSpaceWidth + 'px';
-        animateConfig.time = '300ms'
+        if(isFixed){
+          animateConfig.left.from = curVals.fullScreen ? '0px' : curVals.centerSpaceWidth + 'px';
+          animateConfig.left.to =  curVals.fullScreen ? '0px' : curVals.centerSpaceWidth + 'px';
+        } else {
+          animateConfig.left.from =  '0px';
+          animateConfig.left.to =   '0px';
+        }
       }
-    } 
-    else {
-      animateConfig.width.from = animateConfig.width.to
-      if(isFixed){
+     
+    } else{
+      if(!curVals.fullScreen && isFixed){
         animateConfig.left.from = curVals.fullScreen ? '0px' : curVals.centerSpaceWidth + 'px';
         animateConfig.left.to =  curVals.fullScreen ? '0px' : curVals.centerSpaceWidth + 'px';
-      } else {
-        animateConfig.left.from =  '0px';
-        animateConfig.left.to =   '0px';
       }
     }
+
+    
     return animateConfig
   }
  

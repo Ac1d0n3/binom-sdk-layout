@@ -15,9 +15,9 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrl: './nested-nested.component.scss'
 })
 export class NestedNestedComponent {
-  preheader:boolean = true;
+  preheader:boolean = false;
   sidebarleft:boolean = true;
-  sidebarright:boolean = true;
-  precontent:boolean = true;
-  footer:boolean = true;
+  sidebarright:boolean =false;
+  precontent:boolean = false;
+  footer:boolean = false;
 }

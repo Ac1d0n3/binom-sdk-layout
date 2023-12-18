@@ -47,6 +47,7 @@ export abstract class BnLayoutElementAnimateBaseDirective {
   protected animateConfig:BnGridAnimateObject = this.gridSvc.getDefaultAnimationConfig();
   protected aniToggle:boolean = false;
 
+  protected resizeEvent:boolean = false;
   protected fixedChanged:boolean = false;
   protected fullScreenEvent:boolean = false;
   protected iconsSidebarEvent:boolean = false;
@@ -115,18 +116,10 @@ export abstract class BnLayoutElementAnimateBaseDirective {
   //-------------------------------------------------------------------------------------
   // ON INIT BASE Functions
   protected onInit(withEvent:boolean=true):void {
-   
     if(withEvent) this.__initGridEvent();
     this.__checkBelongsTo();
     if(!this.current || !this.elTag) return;
-
     this.renderUtil.toggleShadow(this.shadow,this.shadowLevel);
-
-    if(this.current.has[this.elTag as keyof BnGridElements]){
-      this.__logMsg('warn',  { function: 'Warning', msg: 'Dublicate Element for: ' + this.elTag });
-      this.renderUtil.setStyle('display', 'none', true);
-    }
-
     this.configSvc.setHas(this.current, this.elTag);
   }
 
@@ -221,6 +214,7 @@ export abstract class BnLayoutElementAnimateBaseDirective {
     this.iconsSidebarEvent = false;
     this.fullScreenEvent = false;
     this.visibleChanged = false;
+    this.resizeEvent = false;
   }
 
 }
