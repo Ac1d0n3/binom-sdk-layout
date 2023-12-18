@@ -57,7 +57,8 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
     else this.aniToggle = !this.visible;
 
     if(this.current.level === 0) {
-      this.animateConfig = {...this.gridSvc.getHeaderAnimationConfig(this.current, this.curVals,this.fullWidth, this.isFixed, this.fullScreenState)}
+      this.animateConfig = this.gridSvc.getHeaderAnimationConfig(this.current, this.curVals,this.fullWidth, this.isFixed, this.fullScreenState)
+     
       this.renderView(this.aniToggle);
     } else { // CHILD HEADERS
 
@@ -78,8 +79,21 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
             this.renderUtil.removeStyle('position'); 
             this.renderUtil.setStyle('grid-area','unset');
           }
-        } else { this.renderUtil.removeStyle('position'); }
-       // console.log(this.belongsToWrapper,this.elTag,this.animateConfig,this.elTag,this.visibleChanged)
+        } else { 
+          this.renderUtil.removeStyle('position'); 
+          if(!this.isFixed) {
+          
+            this.renderUtil.removeStyle('top');
+            this.renderUtil.removeStyle('grid-area');
+          }
+          else { 
+            this.renderUtil.setStyle('top', this.current.heights.header + 'px');
+
+            this.renderUtil.setStyle('grid-area','unset');
+          }
+        
+        }
+       
         this.renderView(this.aniToggle);
         this.lastVal =  this.animateConfig.left.to;
       }

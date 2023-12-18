@@ -343,7 +343,7 @@ export class BnLayoutGridService {
   useWidth(gridWrapper: BnGridWrapper){
     let useWidth = 0;
     if(gridWrapper.config.maxWidth === 0) useWidth = this.getParentWrapperMaxWidth(gridWrapper.wrapperId);
-    if(gridWrapper.config.maxWidth === 0) useWidth = this.witdhInNumber(gridWrapper.config.width,this.layoutSvc.layoutInfo.window.width);
+    //‚if(gridWrapper.config.maxWidth === 0) useWidth = this.witdhInNumber(gridWrapper.config.width,this.layoutSvc.layoutInfo.window.width);
     else useWidth = gridWrapper.config.maxWidth;
     return useWidth;
   }
@@ -438,8 +438,9 @@ export class BnLayoutGridService {
     const selfRef = this.getFixedStaticWidth(current);
     const parent = this.getFixedParentWidth(current);
     const useWidth = this.useWidth(current);
-    const space = ( (current.parentId ===''?this.layoutSvc.layoutInfo.window.width:parent) - useWidth) / 2;
-    const useForSelf =  (selfRef > parent? parent:selfRef);
+    const space = ( this.layoutSvc.layoutInfo.window.width - useWidth) / 2;
+   
+    const useForSelf =  (selfRef > parent && parent !== 0? parent:selfRef);
    
     const useCenterSpace = current.config.centered && useWidth > 0;
    
@@ -452,6 +453,7 @@ export class BnLayoutGridService {
       hasParent: current.parentId !== '',
       sidebarWidths: this.getSidebarsWidths(current.wrapperId),
       centerSpaceWidth: space > 0 ? space:0 ,
+      
       fullSize: window.innerWidth,
       fullScreen: this.isFullscreen(current) || (current.config.centered && this.layoutSvc.layoutInfo.window.width < current.config.maxWidth) ,
       calcHeights:this.checkCalcHeights(current)
@@ -606,53 +608,58 @@ export class BnLayoutGridService {
 
   private __getAnimationConfig( current:BnGridWrapper, curVals:BnWrapperCurVals,fullWidth:boolean, isFixed:boolean, fullScreenState:boolean, elTag:'header'|'preheader'|'footer'):BnGridAnimateObject{
     let animateConfig = this.getDefaultAnimationConfig();
-     if(fullWidth || curVals.fullScreen){
-       animateConfig.width.to = '100%';
-       animateConfig.left.to =  '0px';
-     } else {
-       if(isFixed) {
-         animateConfig.width.from = !curVals.useCenterSpace && curVals.useWidth === 0  ? '100%' : curVals.staticWidth +'px' ;
-         animateConfig.width.to = !curVals.useCenterSpace && curVals.useWidth === 0 ? '100%' : curVals.staticWidth +'px' ;
-         animateConfig.left.from = !curVals.useCenterSpace || curVals.fullScreen? '0px' : `${curVals.centerSpaceWidth}px`;
-         animateConfig.left.to = !curVals.useCenterSpace || curVals.fullScreen? '0px' : `${curVals.centerSpaceWidth}px`;
-       } else {
-         animateConfig.width.to = '100%';
-         animateConfig.left.to =  '0px';
-         animateConfig.left.from =  '0px';
-       }
-     }
- 
-     if(fullWidth){
-       if(!current.config.centered && curVals.useWidth > 0 && (!fullScreenState ||  current.elConfig[elTag].fullWidthContent === 'none')){
-         animateConfig.padding.to =  `0px ${curVals.centerSpaceWidth *2}px 0px 0px`
-       } else
-       if(current.elConfig[elTag].fullWidthContent === 'fullscreen' && fullScreenState){
-         animateConfig.padding.to = '0px 0px';
-       } 
-       else {
-         animateConfig.padding.to =  curVals.useCenterSpace ? '0px '+ curVals.centerSpaceWidth +'px': '0px 0px' ;
-       }
- 
-     } else {
- 
-       if(!current.config.centered && curVals.useWidth > 0){
-         animateConfig.padding.to =  `0px ${curVals.centerSpaceWidth *2}px 0px 0px`
-       } else {
-         animateConfig.padding.to =  (current.config.centered && current.elConfig[elTag].fullWidth ? '0px '+  curVals.centerSpaceWidth +'px': '0px 0px' );
-       }
-     }
- 
-     if(current.elConfig[elTag].fullWidthContent === 'always'){
-       animateConfig.padding.to = '0px';
-     }
- 
-     return animateConfig;
-   }
+    if(curVals.fullScreen){
+      animateConfig.width.to = '100%';
+      animateConfig.left.to =  '0px';
+    }
+
+    if(isFixed) {
+      if(!fullWidth){
+        animateConfig.left.from = !curVals.useCenterSpace || curVals.fullScreen? '0px' : `${curVals.centerSpaceWidth}px`;
+        animateConfig.left.to = !curVals.useCenterSpace || curVals.fullScreen? '0px' : `${curVals.centerSpaceWidth}px`;
+      }
+      animateConfig.width.from = !curVals.useCenterSpace && curVals.useWidth === 0  || fullWidth ? '100%' : curVals.useWidth+'px' ;
+      animateConfig.width.to = !curVals.useCenterSpace && curVals.useWidth === 0 || fullWidth ? '100%' : curVals.useWidth +'px' ;
+      
+      } else {
+        animateConfig.width.to = '100%';
+    }
+
+
+    if(fullWidth){
+      if(!current.config.centered && curVals.useWidth > 0 && (!fullScreenState ||  current.elConfig[elTag].fullWidthContent === 'none')){
+        animateConfig.padding.to =  `0px ${curVals.centerSpaceWidth *2}px 0px 0px`
+      } else
+      if(current.elConfig[elTag].fullWidthContent === 'fullscreen' && fullScreenState){
+        animateConfig.padding.to = '0px 0px';
+      } 
+      else {
+        animateConfig.padding.to =  curVals.useCenterSpace ? '0px '+ curVals.centerSpaceWidth +'px': '0px 0px' ;
+      }
+
+    } else {
+
+      if(!current.config.centered && curVals.useWidth > 0){
+        animateConfig.padding.to =  `0px ${curVals.centerSpaceWidth *2}px 0px 0px`
+      } else {
+        animateConfig.padding.to =  (current.config.centered && current.elConfig[elTag].fullWidth ? '0px '+  curVals.centerSpaceWidth +'px': '0px 0px' );
+      }
+    }
+
+    if(current.elConfig[elTag].fullWidthContent === 'always'){
+      animateConfig.padding.to = '0px';
+    }
+
+    if(!animateConfig.padding.from || animateConfig.padding.from === '*') animateConfig.padding.from = animateConfig.padding.to
+
+    return animateConfig;
+  }
 
    lastFrom:number = 0;
    getChildHeaderAnimationConfig(current:BnGridWrapper, curVals:BnWrapperCurVals, fullWidth:boolean, isFixed:boolean, fullScreenState:boolean, iconsSidebarEvent:boolean,  iconsSidebarState:boolean,visibleChanged:boolean,sideBarVisibleLeftState:boolean|null,fixedChanged:boolean,fullScreenEvent:boolean, lastVal:string|number, resizeEvent:boolean):BnGridAnimateObject{
     let animateConfig = this.getDefaultAnimationConfig(); 
     const space = fullScreenState ? 0: curVals.centerSpaceWidth;
+
     animateConfig.time = '400ms'
 
     if((fullWidth) ){
@@ -696,6 +703,8 @@ export class BnLayoutGridService {
         animateConfig.padding.to = '0px';
       }
     }
+
+    if(!animateConfig.padding.from || animateConfig.padding.from === '*') animateConfig.padding.from = animateConfig.padding.to
 
     return animateConfig
   

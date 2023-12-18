@@ -1,7 +1,7 @@
 import { Directive } from '@angular/core';
 
 @Directive({
-  selector: '[libBnLayoutSubHeader]',
+  selector: '[bnLayoutSubHeader]',
   standalone: true
 })
 export class BnLayoutSubHeaderDirective {

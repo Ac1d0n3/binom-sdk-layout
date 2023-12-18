@@ -120,8 +120,8 @@ export class BnLayoutWrapperDirective {
   get wrapperOffset():number{ return this._wrapperOffset; }
   @Input() set wrapperOffset(val:NumberInput){ this._wrapperOffset= coerceNumberProperty(val); }
 
-  private _animated:boolean = false; get animated():boolean{ return this._animated; }
-  @Input() set animated(val:BooleanInput){ this._animated= coerceBooleanProperty(val); }
+  private _animated:boolean = true; get animated():boolean{ return this._animated; }
+  @Input() set disableAnimated(val:BooleanInput){ this._animated= coerceBooleanProperty(!val); }
 
   //------------------------------------------------------------------------------------------
   //  
