@@ -72,11 +72,13 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
 
   private __initSidebar(){
     if(!this.current) return;
+   
     if(this.sticky){ 
       this.subscriptions.push(this.layoutSvc.scrollInfo$.subscribe((data:BnLayoutScroll) => this.__handleScroll(data )) ); 
-      this.renderUtil.setStyle('z-index','500');
-      
+    
     }
+    let zIndex = 200 - (this.current.level * 2 + 1)
+    this.renderUtil.setStyle('z-index',zIndex.toString());
     this.configSvc.setSidebarDefaults(this.current, this.position, this.createToggle, this.createToggleOnPhone, this.inFooter, this.inHeader, this.iconSidebar, this.iconSidebarToggle,  !this.iconSidebarToggle && this.iconSidebar ? this.configSvc.iconSidebarWidth:this.width )
     this.renderUtil.setStyle('width',this.width +'px');
 
@@ -84,7 +86,7 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
 
   private __viewUpdate(){
     if(!this.current) return;
-    this.curVals = this.gridSvc.getWrapperCurVals(this.current);
+    this.curVals = this.gridSvc.getWrapperCurVals(this.current,this.curVals);
     this.scrollElOffset = 0;
     this.scrollElOffset = this.gridSvc.getElementOffset(this.current.wrapperId, 0, true);
     if(this.sticky) this.__checkIsFixed();
@@ -92,11 +94,11 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
   
   private __renderView(){
     if(!this.current) return;
-    if(this.fullScreenEvent){ this.aniToggle = !this.fullScreenEvent; }
-    else if(this.iconsSidebarEvent){ this.aniToggle = !this.iconsSidebarState; }
+    if(this.curStates.fullScreenEvent){ this.aniToggle = !this.curStates.fullScreenEvent; }
+    else if(this.curStates.iconsSidebarEvent){ this.aniToggle = !this.curStates.iconsSidebarState; }
     else this.aniToggle = !this.visible;
 
-    this.animateConfig = this.gridSvc.getSidebarAnimateConfig(this.fixedChanged,this.visible,this.visibleChanged,this.iconsSidebarEvent,this.width,this.isFixed,this.iconsSidebarState,this.fullScreenEvent,this.current,this.position,this.curVals, this.resizeEvent);
+    this.animateConfig = this.gridSvc.getSidebarAnimateConfig(this.visible,this.width,this.current,this.position,this.curVals,this.curStates);
    
     if(this.isFixed){
       this.renderUtil.setStyle('top', (this.current.elConfig.sidebars[this.position as keyof BnGridSidebars].inHeader? 0 : this.current.heights.header) + 'px');
@@ -108,7 +110,7 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
    
     this.renderViewHelper(this.aniToggle);
     this.renderView(this.aniToggle);
-    this.__resetEventVars();
+
   }
 
   protected override toggleVisible(){ this.__renderView() }
@@ -127,25 +129,14 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
     if(!this.current) return;
     if(this.sticky){ this.__viewUpdate(); }
     if(eventData.action === 'fullscreen'){ 
-      this.fullScreenEvent = true; 
-      this.fullScreenState = eventData.state? eventData.state : false;
       this.__renderView();
     }
     if(eventData.source === 'toggleIconSidebar' && eventData.wrapper === this.belongsToWrapper  && eventData.action === this.position){
-      this.iconsSidebarEvent = true;
-      this.iconsSidebarState = coerceBooleanProperty(eventData.state);
       this.__renderView();
-    }
-    if(eventData.source && (eventData.wrapper === this.belongsToWrapper || this.belongsToWrapper === '' )){
-      if(eventData.action === 'visible' && eventData.source === this.elTag && eventData.wrapper === this.belongsToWrapper && eventData.outsideEvent){
-        this.updateVisible(eventData);
-      }
     }
     if(eventData.source === 'appwrapper' && eventData.action === 'resize'){ 
-      this.resizeEvent = true;
       this.__renderView();
     }
-    
   }
 
   protected animateItHelper(toggle: boolean) {
@@ -169,8 +160,9 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
   private _isFixed:boolean = false;
   get isFixed():boolean { return this._isFixed}
   set isFixed(val:boolean) {
-    if(this.isFixed !== val){ this.fixedChanged = true }
+    if(this.isFixed !== val){ this.curStates.fixedChanged = true }
     this._isFixed = val;
+    this.curStates.isFixed = val;
     this.__renderView();
   }
 
@@ -190,9 +182,12 @@ export class BnLayoutSidebarDirective extends BnLayoutElementAnimateBaseDirectiv
   protected toogleSticky(toggle:boolean){
     this.__createStickyHelper();
     if(toggle ){
+      if(!this.current || !this.__stickyHelper) return;
       this.renderUtil.addClass('fixed');
       this.renderer.setStyle( this.__stickyHelper ,'grid-area','sidebar'+this.position);
       this.renderer.setStyle( this.__stickyHelper , 'display', 'block');
+      let zIndex = 200 - (this.current.level + 2)
+      this.renderer.setStyle( this.__stickyHelper ,'z-index',zIndex.toString());
     } else {
       this.renderUtil.removeClass('fixed'); 
       this.renderer.setStyle( this.__stickyHelper ,'grid-area','none');

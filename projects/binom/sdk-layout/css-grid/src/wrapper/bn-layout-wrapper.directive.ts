@@ -256,7 +256,7 @@ export class BnLayoutWrapperDirective {
     if(this.fullScreenEvent && !this.firstEvent && this.current.config.animated) {
       this.fullScreenEvent = false;
       this.animateGridColumns(fromColumns, toColumns);
-     console.log(fromColumns,toColumns)
+     //console.log(fromColumns,toColumns)
     }
     else this.renderUtil.setStyle('grid-template-columns', toColumns);
     this.renderUtil.addClass('bnl-grid-' + gridSettings.deviceSize);
@@ -281,6 +281,7 @@ export class BnLayoutWrapperDirective {
   }
 
   private animateGridColumns(fromColumns: string, toColumns: string) {
+   
     const metadata = [
       style({ gridTemplateColumns: fromColumns }),
       animate('300ms ease-in-out', style({ gridTemplateColumns: toColumns }))

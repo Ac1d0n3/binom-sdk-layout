@@ -27,13 +27,12 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
   private useScrollWrapper:string = 'bn-layout-app-wrapper';
   private scrollTop:number = 0;
   private scrollElOffset:number = 0;
-  private sideBarVisibleLeftState:boolean|null = false;
-  private sideBarVisibleRightState:boolean|null = false;
-  private lastVal:string|number = '';
+ 
 
   ngOnInit():void{
     this.onInit();
     this.__initHeader();
+    
   }
 
   protected override afterViewInit(): void { 
@@ -43,7 +42,7 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
 
   private __viewUpdate():void{
     if(!this.current) return;
-    this.curVals = this.gridSvc.getWrapperCurVals(this.current);
+    this.curVals = this.gridSvc.getWrapperCurVals(this.current,this.curVals);
     this.scrollElOffset = 0;
     this.scrollElOffset = (this.gridSvc.getElementOffset(this.current.wrapperId)) - (this.current.level === 0 ? 0:this.height);
     if(this.sticky) this.__checkIsFixed();
@@ -52,22 +51,26 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
   
   private __renderView():void{
     if(!this.current) return;
-    if(this.fullScreenEvent){ this.aniToggle = !this.fullScreenEvent; }
-    else if(this.iconsSidebarEvent){ this.aniToggle = !this.iconsSidebarState; }
+    if(this.curStates.fullScreenEvent){ this.aniToggle = !this.curStates.fullScreenEvent; }
+    else if(this.curStates.iconsSidebarEvent){ this.aniToggle = !this.curStates.iconsSidebarState; }
     else this.aniToggle = !this.visible;
 
     if(this.current.level === 0) {
-      this.animateConfig = this.gridSvc.getHeaderAnimationConfig(this.current, this.curVals,this.fullWidth, this.isFixed, this.fullScreenState)
      
+      this.gridSvc.getHeaderAnimationConfig( this.animateConfig, this.current, this.fullWidth, this.curVals, this.curStates);
       this.renderView(this.aniToggle);
+    
     } else { // CHILD HEADERS
-
-      if(this.fullScreenEvent){ this.aniToggle = !this.fullScreenEvent; }
-      else if(this.iconsSidebarEvent){ this.aniToggle = !this.iconsSidebarState; }
-      else this.aniToggle = !this.sideBarVisibleLeftState;
+     
+      if(this.curStates.fullScreenEvent){ this.aniToggle = !this.curStates.fullScreenEvent; }
+      else if(this.curStates.iconsSidebarEvent){ this.aniToggle = !this.curStates.iconsSidebarState; }
+      else {
+       
+       
+      }
      
       if(this.sticky || this.fullWidth){
-        this.animateConfig = this.gridSvc.getChildHeaderAnimationConfig(this.current, this.curVals, this.fullWidth, this.isFixed, this.fullScreenState, this.iconsSidebarEvent, this.iconsSidebarState, this.visibleChanged, this.sideBarVisibleLeftState, this.fixedChanged, this.fullScreenEvent, this.lastVal, this.resizeEvent);
+        this.gridSvc.getChildHeaderAnimationConfig(this.animateConfig,this.current,  this.fullWidth,this.curVals,this.curStates);
         if(this.fullWidth ){
           if(!this.isFixed) {
             this.renderUtil.setStyle('position','absolute');
@@ -82,24 +85,20 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
         } else { 
           this.renderUtil.removeStyle('position'); 
           if(!this.isFixed) {
-          
             this.renderUtil.removeStyle('top');
             this.renderUtil.removeStyle('grid-area');
           }
           else { 
             this.renderUtil.setStyle('top', this.current.heights.header + 'px');
-
             this.renderUtil.setStyle('grid-area','unset');
           }
         
         }
-       
+        console.log(this.belongsToWrapper,this.elTag, this.animateConfig.width.from,  this.animateConfig.width.to)
         this.renderView(this.aniToggle);
-        this.lastVal =  this.animateConfig.left.to;
+       
       }
     }
-   
-    this.__resetEventVars();
    
   }
 
@@ -118,48 +117,27 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
     if(!this.current) return;
 
     this.__viewUpdate(); 
-    if(eventData.action === 'fullscreen'){ 
-      this.fullScreenEvent = true; 
-      this.fullScreenState = eventData.state? eventData.state : false;
+    if(eventData.action === 'fullscreen' || eventData.source === 'toggleIconSidebar' || (eventData.source === 'appwrapper' && eventData.action === 'resize') ){ 
       this.__renderView();
-    }
-    if(eventData.source === 'toggleIconSidebar' ){
-      this.iconsSidebarEvent = true;
-      this.iconsSidebarState = coerceBooleanProperty(eventData.state);
-      this.__renderView();
-    }
-
-    if(eventData.source && (eventData.wrapper === this.belongsToWrapper || this.belongsToWrapper === '' )){
-      if(eventData.action === 'visible' && eventData.source === this.elTag && eventData.wrapper === this.belongsToWrapper && eventData.outsideEvent){
-        this.updateVisible(eventData);
-      }
     }
     
     if(eventData.action === 'visible' && eventData.wrapper !== this.belongsToWrapper  && this.current.level !== 0 && (eventData.source === 'sidebarleft' || eventData.source === 'sidebarright' )){
-      this.visibleChanged = true;
-      if(eventData.source === 'sidebarleft') this.sideBarVisibleLeftState = eventData.state
-      if(eventData.source === 'sidebarright') this.sideBarVisibleRightState = eventData.state
-      this.__renderView();
-     
-    }
-
-    if(eventData.source === 'appwrapper' && eventData.action === 'resize'){ 
-      this.resizeEvent = true;
       this.__renderView();
     }
-   
   }
 
   private __initHeader():void{
-    if(!this.current) return
-
+    if(!this.current) return;
     if(this.sticky || this.transparentAos){
       this.subscriptions.push(this.layoutSvc.scrollInfo$.subscribe((data:BnLayoutScroll) => this.__handleScroll(data )) );
     }
     this.configSvc.setHeaderDefaults(this.current, this.sticky,this.fullWidth,this.transparentAos,this.fullWidthContent);
     this.configSvc.setElementHeight(this.current, this.elTag, this.height);
     this.renderUtil.setHeight(this.height);
-    this.renderUtil.toggleZindex(true,'200');
+    
+    let zIndex = (this.current.parentId === '' ? 300:200) - (this.current.level * 2);
+    this.renderUtil.setStyle('z-index',zIndex.toString());
+   
   }
 
   /* ************************************************************************ 
@@ -169,8 +147,9 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
   private _isFixed:boolean = false;
   get isFixed():boolean { return this._isFixed}
   set isFixed(val:boolean) {
-    if(this.isFixed !== val){ this.fixedChanged = true }
+    if(this.isFixed !== val){ this.curStates.fixedChanged = true }
     this._isFixed = val;
+    this.curStates.isFixed = val;
     this.__renderView();
   }
 

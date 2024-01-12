@@ -45,28 +45,22 @@ export class BnLayoutPreHeaderDirective extends BnLayoutElementAnimateBaseDirect
 
   protected override handleLayoutEvent(eventData:BnGridWrapperEvent):void {
     if(!this.current) return;
-    if(eventData.action === 'fullscreen'){ 
-      this.fullScreenEvent = true; 
-      this.fullScreenState = eventData.state? eventData.state : false;
- 
-    }
-    if(eventData.source && (eventData.wrapper === this.belongsToWrapper || this.belongsToWrapper === '' )){
-      if(eventData.action === 'visible' && eventData.source === this.elTag && eventData.wrapper === this.belongsToWrapper && eventData.outsideEvent){
-        console.log('-->should visible', this.elTag, this.belongsToWrapper)
-        this.updateVisible(eventData);
-      }
-    }
 
-    this.__renderView();
+    if(eventData.action === 'fullscreen' || eventData.source === 'toggleIconSidebar' || (eventData.source === 'appwrapper' && eventData.action === 'resize') ){ 
+      this.__renderView();
+    }
     
   }
 
   private __renderView(){
     if(!this.current) return;
-    this.curVals = this.gridSvc.getWrapperCurVals(this.current);
-    this.animateConfig = this.gridSvc.getPreHeaderAnimationConfig(this.current, this.curVals,this.fullWidth, this.fullScreenState)
-    if(this.fullScreenEvent){ this.aniToggle = !this.fullScreenEvent; }
+    this.curVals = this.gridSvc.getWrapperCurVals(this.current,this.curVals);
+    this.gridSvc.getPreHeaderAnimationConfig(this.animateConfig, this.current,this.fullWidth, this.curVals, this.curStates);
+    
+    if(this.curStates.fullScreenEvent){ this.aniToggle = !this.curStates.fullScreenEvent; }
+    //console.log(this.animateConfig)
     this.renderView(this.aniToggle)
+  
   }
 
 

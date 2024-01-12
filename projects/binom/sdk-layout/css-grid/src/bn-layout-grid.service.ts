@@ -14,6 +14,7 @@ import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { AnimationMetadata, AnimationMetadataType, animate, style } from '@angular/animations';
 import { BnGridAnimateObject } from './interfaces/bn-grid-animate-object';
 import { BnWrapperCurVals } from './interfaces/bn-wrapper-cur-vals';
+import { BnGridCurStates } from './interfaces/bn-grid-cur-states';
 
 @Injectable({ providedIn: 'root' })
 export class BnLayoutGridService {
@@ -26,9 +27,11 @@ export class BnLayoutGridService {
   private eventCount:number = 0;
   private childEventCount:number = 0;
   private prevEvent!:BnGridWrapperEvent;
+  private randomIds:string[] = [];
   wrapperEvent$:BehaviorSubject<BnGridWrapperEvent> = new BehaviorSubject({} as any);
   wrapperChildEvent$:BehaviorSubject<BnGridWrapperEvent> = new BehaviorSubject({} as any);
   gridInfo: BnGridInfo = { fullscreen: false, grid: true, calcHeights: false, alwaysGrid: false, alwaysCalcHeights: false, hierarchy: [] };
+  
 
   //-------------------------------------------------------------------------------------------
   //  Grid Wrapper Events
@@ -181,7 +184,6 @@ export class BnLayoutGridService {
       gridRows: this.__genGridRows(gridWrapper),
       gridAreas: this.__genGridAreas(gridWrapper)
     }
-    //console.log(ret)
     //this.logger.info(this.logSource, { function:'BnLayoutGridService', msg: 'GridSettings updated', info: ret} );
     return ret
   }
@@ -322,7 +324,6 @@ export class BnLayoutGridService {
   useWidth(gridWrapper: BnGridWrapper){
     let useWidth = 0;
     if(gridWrapper.config.maxWidth === 0) useWidth = this.getParentWrapperMaxWidth(gridWrapper.wrapperId);
-    //‚if(gridWrapper.config.maxWidth === 0) useWidth = this.witdhInNumber(gridWrapper.config.width,this.layoutSvc.layoutInfo.window.width);
     else useWidth = gridWrapper.config.maxWidth;
     return useWidth;
   }
@@ -354,13 +355,12 @@ export class BnLayoutGridService {
     return config
   }
 
-  getSidebarsWidths(wrapperId:string, total:number = 0, self:boolean = true):number{
+  getSidebarsWidths(wrapperId:string, total:number = 0, self:boolean = true, pos:string = 'left'):number{
     let current = this.__findWrapperId(this.gridInfo.hierarchy, wrapperId);
     if(current != null){
-      if((!self || current.elConfig.sidebars.left.inHeader) && this.isVisble(current,'sidebarleft')) { total += this.getSidebarStaticWidth(current,'left') }
-     // if((!self || current.elConfig.sidebars.right.inHeader) && this.isVisble(current,'sidebarright')){ total += this.getSidebarStaticWidth(current,'right') }
+      if((!self || current.elConfig.sidebars[pos as keyof BnGridSidebars].inHeader) && this.isVisble(current,'sidebar'+pos)) { total += this.getSidebarStaticWidth(current,pos) }
       if(current.parentId !== undefined && current.parentId !== '' && current.parentId !== 'null'){
-        total = this.getSidebarsWidths(current.parentId,total, false)
+        total = this.getSidebarsWidths(current.parentId,total, false, pos)
       }
     }
     return total
@@ -413,31 +413,47 @@ export class BnLayoutGridService {
     return total
   }
 
-  getWrapperCurVals(current:BnGridWrapper):BnWrapperCurVals {
-    const selfRef = this.getFixedStaticWidth(current);
-    const parent = this.getFixedParentWidth(current);
+  getWrapperCurVals(current:BnGridWrapper,curVals:BnWrapperCurVals):BnWrapperCurVals {
+    let prevLeft =  0;
+    let prevRight = 0;
+    
+    if(curVals ){
+     
+      prevLeft = curVals.sidebarWidths 
+      prevRight = curVals.sidebarWidthsRight
+    }
+
     const useWidth = this.useWidth(current);
     const space = ( this.layoutSvc.layoutInfo.window.width - useWidth) / 2;
-    const useForSelf =  (selfRef > parent && parent !== 0? parent:selfRef);
     const useCenterSpace = current.config.centered && useWidth > 0;
-    return {
-      parentWidth: parent,
-      staticWidth: useForSelf,
+    curVals = {
       useWidth: useWidth,
       useCenterSpace:useCenterSpace,
       hasParent: current.parentId !== '',
+      sidebarWidthsPrev: prevLeft,
+      sidebarWidthsRightPrev: prevRight,
       sidebarWidths: this.getSidebarsWidths(current.wrapperId),
+      sidebarWidthsRight: this.getSidebarsWidths(current.wrapperId, 0, false, 'right'),
       centerSpaceWidth: space > 0 ? space:0 ,
       fullSize: window.innerWidth,
-      fullScreen: this.isFullscreen(current) || (current.config.centered && this.layoutSvc.layoutInfo.window.width < current.config.maxWidth) ,
+      fullScreen: this.isFullscreen(current) || 
+        ( current.config.centered && this.layoutSvc.layoutInfo.window.width < current.config.maxWidth ),
       calcHeights:this.checkCalcHeights(current)
     }
+    return curVals
   }
 
-  randomId(){
+  
+
+  randomId():string{
     const randomLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26)); 
     const randomChars = Math.random().toString(36).substr(2, 3).toUpperCase();
-    return randomLetter + randomChars;
+    let id = randomLetter + randomChars
+    if(this.randomIds.findIndex((obj:string) => id === obj) === -1){
+      this.randomIds.push(id)
+      return id
+    } else return this.randomId()
+    
   }
 
   /************************************************************************
@@ -556,44 +572,48 @@ export class BnLayoutGridService {
     return  {...{ left: { from: '*', to: '*'}, padding: { from: '*', to: '*'}, width: { from: '*', to: '*'}, time: '400ms' }}
   }
 
-
-  getHeaderAnimationConfig( current:BnGridWrapper, curVals:BnWrapperCurVals,fullWidth:boolean, isFixed:boolean, fullScreenState:boolean):BnGridAnimateObject{
-    return this.__getAnimationConfig(current, curVals,fullWidth, isFixed, fullScreenState, 'header');
+  getHeaderAnimationConfig(animateConfig:BnGridAnimateObject, current:BnGridWrapper,fullWidth:boolean, curVals:BnWrapperCurVals,curStates:BnGridCurStates):void{
+    this.__getAnimationConfig(animateConfig,current,fullWidth, 'header', curVals, curStates);
   }
 
-  getPreHeaderAnimationConfig( current:BnGridWrapper, curVals:BnWrapperCurVals,fullWidth:boolean, fullScreenState:boolean):BnGridAnimateObject{
-    return this.__getAnimationConfig(current, curVals,fullWidth, false, fullScreenState, 'preheader');
+  getPreHeaderAnimationConfig( animateConfig:BnGridAnimateObject, current:BnGridWrapper,fullWidth:boolean, curVals:BnWrapperCurVals,curStates:BnGridCurStates):void{
+    this.__getAnimationConfig(animateConfig,current,fullWidth, 'preheader', curVals, curStates);
   }
 
-  geFooterAnimationConfig(current:BnGridWrapper, curVals:BnWrapperCurVals,fullWidth:boolean, fullScreenState:boolean):BnGridAnimateObject{
-    return this.__getAnimationConfig(current, curVals,fullWidth, false, fullScreenState, 'footer');
+  geFooterAnimationConfig(animateConfig:BnGridAnimateObject, current:BnGridWrapper,fullWidth:boolean, curVals:BnWrapperCurVals,curStates:BnGridCurStates):void{
+    this.__getAnimationConfig(animateConfig,current,fullWidth, 'footer', curVals, curStates);
   }
 
-  private __getAnimationConfig( current:BnGridWrapper, curVals:BnWrapperCurVals,fullWidth:boolean, isFixed:boolean, fullScreenState:boolean, elTag:'header'|'preheader'|'footer'):BnGridAnimateObject{
-    let animateConfig = this.getDefaultAnimationConfig();
+  private __getAnimationConfig(animateConfig:BnGridAnimateObject, current:BnGridWrapper,fullWidth:boolean,  elTag:'header'|'preheader'|'footer', curVals:BnWrapperCurVals,curStates:BnGridCurStates):void{
+    
     if(curVals.fullScreen){ animateConfig.width.to = '100%'; animateConfig.left.to =  '0px'; }
 
-    if(isFixed) {
+    if(curStates.isFixed) {
       if(!fullWidth){
         animateConfig.left.from = !curVals.useCenterSpace || curVals.fullScreen? '0px' : `${curVals.centerSpaceWidth}px`;
         animateConfig.left.to = !curVals.useCenterSpace || curVals.fullScreen? '0px' : `${curVals.centerSpaceWidth}px`;
       }
-      animateConfig.width.from = !curVals.useCenterSpace && curVals.useWidth === 0  || fullWidth ? '100%' : curVals.useWidth+'px' ;
-      animateConfig.width.to = !curVals.useCenterSpace && curVals.useWidth === 0 || fullWidth ? '100%' : curVals.useWidth +'px' ;
-      
+      if(!curVals.fullScreen){
+        animateConfig.width.from = !curVals.useCenterSpace && curVals.useWidth === 0  || fullWidth ? '100%' : curVals.useWidth+'px' ;
+        animateConfig.width.to = !curVals.useCenterSpace && curVals.useWidth === 0 || fullWidth ? '100%' : curVals.useWidth +'px' ;
+        
+      }
+    
     } else {
         animateConfig.width.to = '100%';
         if(!fullWidth){ animateConfig.left.to =  '0px'; animateConfig.left.from =  '0px'; }
     }
 
     if(fullWidth){
-      if(!current.config.centered && curVals.useWidth > 0 && (!fullScreenState ||  current.elConfig[elTag].fullWidthContent === 'none')){
-        animateConfig.padding.to =  `0px ${curVals.centerSpaceWidth *2}px 0px 0px`
+      if(!current.config.centered && curVals.useWidth > 0 && (!curStates.fullScreenState ||  current.elConfig[elTag].fullWidthContent === 'none')){
+        animateConfig.padding.to =  `0px ${curVals.centerSpaceWidth *2}px 0px 0px`;
       } 
-      else if(current.elConfig[elTag].fullWidthContent === 'fullscreen' && fullScreenState){
+      else if(current.elConfig[elTag].fullWidthContent === 'fullscreen' && curStates.fullScreenState){
         animateConfig.padding.to = '0px 0px';
       } 
-      else { animateConfig.padding.to =  curVals.useCenterSpace ? '0px '+ curVals.centerSpaceWidth +'px': '0px 0px' ; }
+      else { 
+        animateConfig.padding.to =  curVals.useCenterSpace ? '0px '+ curVals.centerSpaceWidth +'px': '0px 0px' ; 
+      }
 
     } else {
       if(!current.config.centered && curVals.useWidth > 0){
@@ -604,22 +624,20 @@ export class BnLayoutGridService {
     }
 
     if(current.elConfig[elTag].fullWidthContent === 'always'){ animateConfig.padding.to = '0px'; }
-
-    if(!animateConfig.padding.from || animateConfig.padding.from === '*') animateConfig.padding.from = animateConfig.padding.to
-
-    return animateConfig;
+   
   }
 
 
-   getChildHeaderAnimationConfig(current:BnGridWrapper, curVals:BnWrapperCurVals, fullWidth:boolean, isFixed:boolean, fullScreenState:boolean, iconsSidebarEvent:boolean,  iconsSidebarState:boolean,visibleChanged:boolean,sideBarVisibleLeftState:boolean|null,fixedChanged:boolean,fullScreenEvent:boolean, lastVal:string|number, resizeEvent:boolean):BnGridAnimateObject{
-    let animateConfig = this.getDefaultAnimationConfig(); 
-    const space = fullScreenState ? 0: curVals.centerSpaceWidth;
-    animateConfig.time = '400ms'
 
-    if((fullWidth) ){
+   getChildHeaderAnimationConfig(animateConfig:BnGridAnimateObject,current:BnGridWrapper, fullWidth:boolean, curVals:BnWrapperCurVals, curStates:BnGridCurStates):void{
+    const space = curStates.fullScreenState ? 0: curVals.centerSpaceWidth;
+    animateConfig.time = '400ms';
+    const fromWidth =  (curStates.fullScreenState? curVals.fullSize: curVals.useWidth)- curVals.sidebarWidthsRight;
+
+    if(fullWidth){
       animateConfig.width.to = '100vw'; 
       animateConfig.width.from = '100vw';
-      if(!isFixed) {
+      if(!curStates.isFixed) {
         animateConfig.left.to = '-' + space + 'px'; 
         animateConfig.left.from = animateConfig.left.to;
       }
@@ -627,72 +645,107 @@ export class BnLayoutGridService {
         animateConfig.left.to = '0px';
         animateConfig.left.from = animateConfig.left.to;
       }
-    } 
-
-    if(visibleChanged){
-      if(fullWidth){
-        if(!isFixed){
-          if(sideBarVisibleLeftState){ animateConfig.left.from =  '-' + space + 'px'; } 
-          else { animateConfig.left.from = lastVal; }
-          animateConfig.left.to = animateConfig.left.to = '-' + (space + curVals.sidebarWidths)+ 'px';
+    } else {
+      if(curStates.fullScreenState){
+       
+        animateConfig.width.to = (curVals.fullSize - curVals.sidebarWidthsRight) +'px' ;
+      } else {
+        if(curStates.fixedChanged){
+          animateConfig.width.from = !curVals.useCenterSpace && curVals.useWidth === 0 ? '100%' : (fromWidth- curVals.sidebarWidthsRightPrev)+'px' ;
         }
+        animateConfig.width.to = !curVals.useCenterSpace && curVals.useWidth === 0 ? '100%' : (fromWidth ) +'px' ;
+      }
+      
+      if(!curStates.isFixed ){
+        animateConfig.width.to = '100%'; 
+        animateConfig.width.from = '100%';
+      }
+
+    }
+   
+    if(curStates.visibleChanged){
+      if(fullWidth){
+        if(!curStates.isFixed){
+          if(curStates.sideBarVisibleLeftState){ animateConfig.left.from =  '-' + space + 'px'; } 
+         
+          animateConfig.left.to = '-' + (space + curVals.sidebarWidths)+ 'px';
+        }
+      } else {
+        if(curStates.sideBarVisibleRightState && curStates.isFixed){
+          animateConfig.width.from = !curVals.useCenterSpace && curVals.useWidth === 0  || fullWidth ? '100%' : fromWidth +'px' ;
+          
+        }
+        
       }
     }
-    else if(fixedChanged){
-      if(!isFixed){
-        animateConfig.left.from = animateConfig.left.to = '-' + (space + curVals.sidebarWidths)+ 'px';
-        animateConfig.left.to = animateConfig.left.to = '-' + (space + curVals.sidebarWidths)+ 'px';
+    else if(curStates.fixedChanged){
+      if(!curStates.isFixed){
+        animateConfig.left.from = '-' + (space + curVals.sidebarWidths)+ 'px';
+        animateConfig.left.to = '-' + (space + curVals.sidebarWidths)+ 'px';
       }
     }
-    else if( iconsSidebarEvent || fullScreenEvent){
-      if(!isFixed ){
-        animateConfig.left.from = '-' + (space + (iconsSidebarState ? this.configSvc.iconSidebarWidth:200))+ 'px';
+    else if( curStates.iconsSidebarEvent || curStates.fullScreenEvent){
+      if(!curStates.isFixed ){
+        animateConfig.left.from = '-' + (space + (curStates.iconsSidebarState ? this.configSvc.iconSidebarWidth:curVals.sidebarWidthsPrev))+ 'px';
         animateConfig.left.to = '-' + (space+ curVals.sidebarWidths)+ 'px';
-      }
+      } 
     } 
     
     if(fullWidth){
-      animateConfig.padding.to = '0px '+ (space+ curVals.sidebarWidths) +'px';
-      if(current.elConfig.header.fullWidthContent === 'always'){
+      animateConfig.padding.to = '0px '+ (space+ curVals.sidebarWidthsRight) +'px 0px '+ (space+ curVals.sidebarWidths) +'px';
+      if(current.elConfig.header.fullWidthContent === 'always' ){
+        animateConfig.padding.to = '0px';
+      }
+    } else {
+      animateConfig.padding.to = '0px 0px 0px '+ (curVals.sidebarWidths) +'px';
+      if(current.elConfig.header.fullWidthContent === 'always' || !curStates.isFixed){
         animateConfig.padding.to = '0px';
       }
     }
 
-    if(!animateConfig.padding.from || animateConfig.padding.from === '*') animateConfig.padding.from = animateConfig.padding.to
+    if(!curStates.isFixed && !fullWidth){
+      animateConfig.left.to = '0px';
+      animateConfig.left.from = animateConfig.left.to;
+    }
 
-    return animateConfig
+    if(!fullWidth && curStates.isFixed){
+      animateConfig.left.to =  space + 'px'; 
+      animateConfig.left.from = animateConfig.left.to;
+    }
+
+    if(!animateConfig.padding.from || animateConfig.padding.from === '*') animateConfig.padding.from = animateConfig.padding.to
   
   }
 
-  getSidebarAnimateConfig(fixedChanged:boolean,visible:boolean,visibleChanged:boolean,iconsSidebarEvent:boolean,width:number,isFixed:boolean,iconsSidebarState:boolean,fullScreenEvent:boolean,current:BnGridWrapper,position:'left'|'right',curVals:BnWrapperCurVals, resizeEvent:boolean){
+  getSidebarAnimateConfig(visible:boolean,width:number,current:BnGridWrapper,position:'left'|'right',curVals:BnWrapperCurVals,curStates:any){
   let animateConfig = this.getDefaultAnimationConfig(); 
    animateConfig.time = '400ms'
-   if(!resizeEvent){ 
-   if(!fixedChanged){
+   if(!curStates.resizeEvent){ 
+   if(!curStates.fixedChanged){
    
-        if(visibleChanged){ animateConfig.left.from =  animateConfig.left.to; }
+        if(curStates.visibleChanged){ animateConfig.left.from =  animateConfig.left.to; }
         if(visible){
-          animateConfig.width.from = !visibleChanged? current.elConfig.sidebars[position as keyof BnGridSidebars].width + 'px':  '0px'; 
+          animateConfig.width.from = !curStates.visibleChanged? current.elConfig.sidebars[position as keyof BnGridSidebars].width + 'px':  '0px'; 
           animateConfig.width.to = current.elConfig.sidebars[position as keyof BnGridSidebars].width + 'px';
         } else {
-          animateConfig.width.from = (visibleChanged ? current.elConfig.sidebars[position as keyof BnGridSidebars].width : 0) + 'px'; 
+          animateConfig.width.from = (curStates.visibleChanged ? current.elConfig.sidebars[position as keyof BnGridSidebars].width : 0) + 'px'; 
           animateConfig.width.to =  '0px';
         }
-        if( iconsSidebarEvent && visible){
+        if( curStates.iconsSidebarEvent && visible){
           animateConfig.left.from =  animateConfig.left.to 
-          animateConfig.width.from = !iconsSidebarState? width: this.configSvc.iconSidebarWidth+ 'px';
+          animateConfig.width.from = !curStates.iconsSidebarState? width: this.configSvc.iconSidebarWidth+ 'px';
           animateConfig.width.to =   current.elConfig.sidebars[position as keyof BnGridSidebars].width+ 'px';
         } 
-        else if (fullScreenEvent){
+        else if (curStates.fullScreenEvent){
           animateConfig.width.from = animateConfig.width.to
-          animateConfig.left.from = !curVals.fullScreen ||!isFixed ? '0px' : curVals.centerSpaceWidth + 'px';
-          animateConfig.left.to =  curVals.fullScreen || !isFixed ? '0px' : curVals.centerSpaceWidth + 'px';
-          animateConfig.time = '300ms'
+          animateConfig.left.from = !curVals.fullScreen ||!curStates.isFixed ? '0px' : curVals.centerSpaceWidth + 'px';
+          animateConfig.left.to =  curVals.fullScreen || !curStates.isFixed ? '0px' : curVals.centerSpaceWidth + 'px';
+          //animateConfig.time = '300ms'
         }
       } 
       else {
         animateConfig.width.from = animateConfig.width.to
-        if(isFixed){
+        if(curStates.isFixed){
           animateConfig.left.from = curVals.fullScreen ? '0px' : curVals.centerSpaceWidth + 'px';
           animateConfig.left.to =  curVals.fullScreen ? '0px' : curVals.centerSpaceWidth + 'px';
         } else {
@@ -702,7 +755,7 @@ export class BnLayoutGridService {
       }
      
     } else{
-      if(!curVals.fullScreen && isFixed){
+      if(!curVals.fullScreen && curStates.isFixed){
         animateConfig.left.from = curVals.fullScreen ? '0px' : curVals.centerSpaceWidth + 'px';
         animateConfig.left.to =  curVals.fullScreen ? '0px' : curVals.centerSpaceWidth + 'px';
       }

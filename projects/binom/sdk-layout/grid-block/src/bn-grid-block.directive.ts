@@ -23,7 +23,7 @@ export class BnGridBlockDirective {
   @Input() topMargin:number = 0;
   @Input() gridGap:number = 0;
   @Input() minColumnWidth:number= 200;
-  @Input() maxColumnWidth:number= 0;
+
 
   @Input('columns') set setCoumns(value:number){
     this.gridColsChache = value;
@@ -36,24 +36,23 @@ export class BnGridBlockDirective {
   
   gridRows:string = 'auto';
   isMobile:boolean = false;
+  useWidth:number = 0;
   ngOnInit(): void {
+    this.useWidth = this.el.nativeElement.offsetWidth;
     this.observer = new ResizeObserver(entries => {
       this.zone.run(() => {
-        this.width$.next(entries[0].contentRect.width);
-        this.updateView();
+        this.useWidth = entries[0].contentRect.width;
+        this.calc(this.gridColsChache);
+        this.updateView(); 
       });
     });
 
     this.observer.observe(this.el.nativeElement);
 
-    let sub1 = this.layoutSvc.layoutInfo$.subscribe((data:any)=>{
-        this.layoutInfo = data;
-        this.calc(this.gridColsChache);
-        this.updateView();
-    });
     if(this.height > 0) this.gridRows = this.height + 'px'
-    this.updateView();
-    this.subscriptions.push(sub1);
+    this.calc(this.gridColsChache);
+    this.updateView(); 
+ 
 
     this.subscriptions.push(this.gridSvc.wrapperEvent$.subscribe((data:BnGridWrapperEvent) => this.gridChange(data)));
   }
@@ -61,24 +60,20 @@ export class BnGridBlockDirective {
 
   calc(value:number){
     this.gridCols = '';
+    
     if(value === 0){
-      if(this.maxColumnWidth === 0 ) this.maxColumnWidth = this.minColumnWidth;
-      while( this.maxColumnWidth * value < this.el.nativeElement.offsetWidth ){ value++; }
+      while( this.minColumnWidth * value <= this.useWidth){ value++; }
       value--
     } else {
-      while( this.minColumnWidth * value >= this.el.nativeElement.offsetWidth ){ value--; }
+      while( this.minColumnWidth * value >= this.useWidth ){ value--; }
+      
     }
-  
     for(let i = 0; i < value; i++){ this.gridCols += ' 1fr'; }
-  
   }
 
   private gridChange(data:BnGridWrapperEvent){
-    setTimeout(() => {
-      this.calc(this.gridColsChache);
-    this.updateView();
-    },100);
-    
+    this.calc(this.gridColsChache);
+    this.updateView(); 
   }
 
   updateView(){
