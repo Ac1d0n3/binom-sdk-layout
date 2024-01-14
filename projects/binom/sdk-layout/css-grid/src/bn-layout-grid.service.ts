@@ -632,7 +632,7 @@ export class BnLayoutGridService {
    getChildHeaderAnimationConfig(animateConfig:BnGridAnimateObject,current:BnGridWrapper, fullWidth:boolean, curVals:BnWrapperCurVals, curStates:BnGridCurStates):void{
     const space = curStates.fullScreenState ? 0: curVals.centerSpaceWidth;
     animateConfig.time = '400ms';
-    const fromWidth =  (curStates.fullScreenState? curVals.fullSize: curVals.useWidth)- curVals.sidebarWidthsRight;
+    const fromWidth =  (curStates.fullScreenState? curVals.fullSize: curVals.useWidth);
 
     if(fullWidth){
       animateConfig.width.to = '100vw'; 
@@ -653,7 +653,7 @@ export class BnLayoutGridService {
         if(curStates.fixedChanged){
           animateConfig.width.from = !curVals.useCenterSpace && curVals.useWidth === 0 ? '100%' : (fromWidth- curVals.sidebarWidthsRightPrev)+'px' ;
         }
-        animateConfig.width.to = !curVals.useCenterSpace && curVals.useWidth === 0 ? '100%' : (fromWidth ) +'px' ;
+        animateConfig.width.to = !curVals.useCenterSpace && curVals.useWidth === 0 ? '100%' : (fromWidth - curVals.sidebarWidthsRight) +'px' ;
       }
       
       if(!curStates.isFixed ){
@@ -712,7 +712,7 @@ export class BnLayoutGridService {
       animateConfig.left.to =  space + 'px'; 
       animateConfig.left.from = animateConfig.left.to;
     }
-
+    console.log(animateConfig.left.from,'->',animateConfig.left.to)
     if(!animateConfig.padding.from || animateConfig.padding.from === '*') animateConfig.padding.from = animateConfig.padding.to
   
   }

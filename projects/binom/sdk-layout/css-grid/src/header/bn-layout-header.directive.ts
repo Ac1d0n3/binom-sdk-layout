@@ -65,7 +65,10 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
       if(this.curStates.fullScreenEvent){ this.aniToggle = !this.curStates.fullScreenEvent; }
       else if(this.curStates.iconsSidebarEvent){ this.aniToggle = !this.curStates.iconsSidebarState; }
       else {
-       
+        if(this.curStates.visibleChanged){
+          this.aniToggle = !this.curStates.sideBarVisibleLeftState
+        }
+        
        
       }
      
@@ -94,9 +97,9 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
           }
         
         }
-        console.log(this.belongsToWrapper,this.elTag, this.animateConfig.width.from,  this.animateConfig.width.to)
+        //console.log(this.belongsToWrapper,this.elTag, this.animateConfig,this.aniToggle)
         this.renderView(this.aniToggle);
-       
+    
       }
     }
    
