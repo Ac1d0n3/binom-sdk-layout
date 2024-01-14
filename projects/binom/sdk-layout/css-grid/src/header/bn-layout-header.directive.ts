@@ -58,6 +58,7 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
     if(this.current.level === 0) {
      
       this.gridSvc.getHeaderAnimationConfig( this.animateConfig, this.current, this.fullWidth, this.curVals, this.curStates);
+      console.log(this.belongsToWrapper,this.elTag, this.animateConfig.width.from,this.animateConfig.width.to ,this.aniToggle)
       this.renderView(this.aniToggle);
     
     } else { // CHILD HEADERS
@@ -65,7 +66,7 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
       if(this.curStates.fullScreenEvent){ this.aniToggle = !this.curStates.fullScreenEvent; }
       else if(this.curStates.iconsSidebarEvent){ this.aniToggle = !this.curStates.iconsSidebarState; }
       else {
-        if(this.curStates.visibleChanged){
+        if(this.curStates.visibleChanged || this.fullWidth && !this.isFixed){
           this.aniToggle = !this.curStates.sideBarVisibleLeftState
         }
         
@@ -79,6 +80,7 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
             this.renderUtil.setStyle('position','absolute');
             this.renderUtil.removeStyle('top');
             this.renderUtil.removeStyle('grid-area');
+           
           }
           else { 
             this.renderUtil.setStyle('top', this.current.heights.header + 'px');
@@ -97,7 +99,7 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
           }
         
         }
-        //console.log(this.belongsToWrapper,this.elTag, this.animateConfig,this.aniToggle)
+        //console.log(this.belongsToWrapper,this.elTag, this.animateConfig.width.from,this.animateConfig.width.to ,this.aniToggle)
         this.renderView(this.aniToggle);
     
       }
@@ -118,9 +120,9 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
 
   protected override handleLayoutEvent(eventData:BnGridWrapperEvent):void {
     if(!this.current) return;
-
+  
     this.__viewUpdate(); 
-    if(eventData.action === 'fullscreen' || eventData.source === 'toggleIconSidebar' || (eventData.source === 'appwrapper' && eventData.action === 'resize') ){ 
+    if(eventData.action === 'fullscreen' && eventData.wrapper === this.belongsToWrapper || eventData.source === 'toggleIconSidebar' || (eventData.source === 'appwrapper' && eventData.action === 'resize') ){ 
       this.__renderView();
     }
     
@@ -153,6 +155,7 @@ export class BnLayoutHeaderDirective extends BnLayoutElementAnimateBaseDirective
     if(this.isFixed !== val){ this.curStates.fixedChanged = true }
     this._isFixed = val;
     this.curStates.isFixed = val;
+    if(this.curStates.fixedChanged)
     this.__renderView();
   }
 

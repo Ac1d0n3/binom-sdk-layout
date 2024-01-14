@@ -585,7 +585,7 @@ export class BnLayoutGridService {
   }
 
   private __getAnimationConfig(animateConfig:BnGridAnimateObject, current:BnGridWrapper,fullWidth:boolean,  elTag:'header'|'preheader'|'footer', curVals:BnWrapperCurVals,curStates:BnGridCurStates):void{
-    
+    const fromWidth =  (curStates.fullScreenState? curVals.fullSize: curVals.useWidth);
     if(curVals.fullScreen){ animateConfig.width.to = '100%'; animateConfig.left.to =  '0px'; }
 
     if(curStates.isFixed) {
@@ -594,8 +594,8 @@ export class BnLayoutGridService {
         animateConfig.left.to = !curVals.useCenterSpace || curVals.fullScreen? '0px' : `${curVals.centerSpaceWidth}px`;
       }
       if(!curVals.fullScreen){
-        animateConfig.width.from = !curVals.useCenterSpace && curVals.useWidth === 0  || fullWidth ? '100%' : curVals.useWidth+'px' ;
-        animateConfig.width.to = !curVals.useCenterSpace && curVals.useWidth === 0 || fullWidth ? '100%' : curVals.useWidth +'px' ;
+        animateConfig.width.from = !curVals.useCenterSpace && curVals.useWidth === 0  || fullWidth  ? '100%' : fromWidth+'px' ;
+        animateConfig.width.to = !curVals.useCenterSpace && curVals.useWidth === 0 || fullWidth ? '100%' : fromWidth +'px' ;
         
       }
     
@@ -623,6 +623,18 @@ export class BnLayoutGridService {
       }
     }
 
+    if(curStates.fullScreenEvent){
+      if(curStates.isFixed && !fullWidth)
+        animateConfig.width.from = (curStates.fullScreenState ? curVals.useWidth:curVals.fullSize) +'px';
+     
+    }
+
+    if(curStates.fixedChanged){
+      animateConfig.left.from = animateConfig.left.to;
+      animateConfig.width.from = animateConfig.width.to;
+      animateConfig.padding.from = animateConfig.padding.to;
+    }
+
     if(current.elConfig[elTag].fullWidthContent === 'always'){ animateConfig.padding.to = '0px'; }
    
   }
@@ -639,11 +651,13 @@ export class BnLayoutGridService {
       animateConfig.width.from = '100vw';
       if(!curStates.isFixed) {
         animateConfig.left.to = '-' + space + 'px'; 
-        animateConfig.left.from = animateConfig.left.to;
+        //animateConfig.left.from = animateConfig.left.to;
       }
       else { 
         animateConfig.left.to = '0px';
-        animateConfig.left.from = animateConfig.left.to;
+        if(curStates.fixedChanged){
+          animateConfig.left.from = animateConfig.left.to;
+        }
       }
     } else {
       if(curStates.fullScreenState){
@@ -686,7 +700,7 @@ export class BnLayoutGridService {
     }
     else if( curStates.iconsSidebarEvent || curStates.fullScreenEvent){
       if(!curStates.isFixed ){
-        animateConfig.left.from = '-' + (space + (curStates.iconsSidebarState ? this.configSvc.iconSidebarWidth:curVals.sidebarWidthsPrev))+ 'px';
+        
         animateConfig.left.to = '-' + (space+ curVals.sidebarWidths)+ 'px';
       } 
     } 
@@ -710,9 +724,14 @@ export class BnLayoutGridService {
 
     if(!fullWidth && curStates.isFixed){
       animateConfig.left.to =  space + 'px'; 
-      animateConfig.left.from = animateConfig.left.to;
+     
     }
-    console.log(animateConfig.left.from,'->',animateConfig.left.to)
+    if(curStates.fixedChanged){
+      animateConfig.left.from = animateConfig.left.to;
+      animateConfig.padding.from = animateConfig.padding.to;
+    }
+   
+    //console.log(animateConfig.left.from,'->',animateConfig.left.to)
     if(!animateConfig.padding.from || animateConfig.padding.from === '*') animateConfig.padding.from = animateConfig.padding.to
   
   }
